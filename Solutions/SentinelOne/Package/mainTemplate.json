@@ -2332,11 +2332,10 @@
                   }
                 },
                 "paging": {
-                  "pagingType": "NextPageToken",
-                  "PageSize": "1000",
-                  "PageSizeParameterName": "limit",
-                  "NextPageTokenJsonPath": "$.pagination.nextCursor",
-                  "NextPageParaName": "cursor"
+                  "pagingType" : "PersistentToken",
+                  "nextPageParaName": "scroll",
+                  "nextPageTokenJsonPath" : "$.scroll",
+                  "isLastFlagJsonPath": "[if(equals('scroll', 'complete'), 'true', 'false')]"
                 },
                 "response": {
                   "eventsJsonPaths": [
