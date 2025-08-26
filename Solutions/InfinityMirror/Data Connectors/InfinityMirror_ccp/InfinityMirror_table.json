@@ -1,48 +1,84 @@
 {
-    "name": "KeeperSecurityEventNewLogs_CL",
+    "name": "InfinityMirrorDeceptionEvents_CL",
     "type": "Microsoft.OperationalInsights/workspaces/tables",
     "apiVersion": "2021-03-01-privatepreview",
     "tags": {},
     "properties": {
       "plan": "Analytics",
       "schema": {
-        "name": "KeeperSecurityEventNewLogs_CL",
+        "name": "InfinityMirrorDeceptionEvents_CL",
         "columns": [
             {
                 "name": "TimeGenerated",
                 "type": "datetime"
             },
             {
-                "name": "AuditEvent",
+                "name": "TimeOnClient",
+                "type": "datetime"
+            },
+            {
+                "name": "Id",
                 "type": "string"
             },
             {
-                "name": "RemoteAddress",
+                "name": "Message",
                 "type": "string"
+            },
+            {
+                "name": "Properties",
+                "type": "dynamic"
             },
             {
                 "name": "Category",
                 "type": "string"
             },
             {
-                "name": "ClientVersion",
+                "name": "Severity",
                 "type": "string"
             },
             {
-                "name": "EnterpriseId",
-                "type": "int"
-            },
-            {
-                "name": "Username",
+                "name": "Campaign",
                 "type": "string"
             },
             {
-                "name": "Timestamp",
-                "type": "datetime"
-            },
-            {
-                "name": "Data",
+                "name": "Decoy",
                 "type": "dynamic"
+            },
+            {
+                "name": "DeviceEventClass",
+                "type": "string"
+            },
+            {
+                "name": "SourceAddress",
+                "type": "string"
+            },
+            {
+                "name": "SourceHostName",
+                "type": "string"
+            },
+            {
+                "name": "SourceHostId",
+                "type": "string"
+            },
+            {
+                "name": "DestinationAddress",
+                "type": "string"
+            },
+            {
+                "name": "DestinationPort",
+                "type": "string"
+            },
+            {
+                "name": "MitreTechnique",
+                "type": "dynamic"
+            },
+            {
+                "name": "FileHash",
+                "type": "string"
+            },
+            {
+                "name": "User",
+                "type": "string"
             }
         ]
       }

@@ -1,9 +1,9 @@
 {
-	"publisherId": "keepersecurity",
-	"offerId": "keeper-security-integration",
-	"firstPublishDate": "2025-06-03",
-	"lastPublishDate": "2025-06-03",
-	"providers": ["Keeper Security"],
+	"publisherId": "infinitymirror",
+	"offerId": "infinity-mirror-sentinel",
+	"firstPublishDate": "2025-09-03",
+	"lastPublishDate": "2025-09-03",
+	"providers": ["Infinity Mirror"],
 	"categories": {
 		"domains" : [
 			"Security - Threat Protection",
@@ -11,9 +11,9 @@
 		]
 	},
 	"support": {
-	  "name": "Keeper Security",
-	  "email": "support@keepersecurity.com",
+	  "name": "InfinityMirror",
+	  "email": "support@infinitymirror.com",
 	  "tier": "Partner",
-	  "link": "https://www.keepersecurity.com"
+	  "link": "https://www.infinitymirror.com"
 	}
 }
