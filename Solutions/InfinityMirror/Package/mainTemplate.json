@@ -154,12 +154,12 @@
                         {
                           "type": "Markdown",
                           "parameters": {
-                            "content": "#### Automated Configuration and Secure Data Ingestion with Entra Application \nClicking on \"Deploy\" will trigger the creation of Log Analytics tables and a Data Collection Rule (DCR). \nIt will then create an Entra application, link the DCR to it, and set the entered secret in the application. This setup enables data to be sent securely to the DCR using an Entra token."
+                            "content": "#### Automated Configuration and Secure Data Ingestion with Entra Application \nClicking on \"Connect\" will trigger the creation of Log Analytics tables and a Data Collection Rule (DCR). \nIt will then create an Entra application, link the DCR to it, and set the entered secret in the application. This setup enables data to be sent securely to the DCR using an Entra identity."
                           }
                         },
                         {
                           "parameters": {
-                            "label": "Infinity Mirror connector resources",
+                            "label": "Connect",
                             "applicationDisplayName": "Infinity Mirror Connector Application"
                           },
                           "type": "DeployPushConnectorButton"
@@ -512,12 +512,12 @@
                 {
                   "type": "Markdown",
                   "parameters": {
-                    "content": "#### Automated Configuration and Secure Data Ingestion with Entra Application \nClicking on \"Deploy\" will trigger the creation of Log Analytics tables and a Data Collection Rule (DCR). \nIt will then create an Entra application, link the DCR to it, and set the entered secret in the application. This setup enables data to be sent securely to the DCR using an Entra token."
+                    "content": "#### Automated Configuration and Secure Data Ingestion with Entra Application \nClicking on \"Connect\" will trigger the creation of Log Analytics tables and a Data Collection Rule (DCR). \nIt will then create an Entra application, link the DCR to it, and set the entered secret in the application. This setup enables data to be sent securely to the DCR using an Entra identity."
                   }
                 },
                 {
                   "parameters": {
-                    "label": "Infinity Mirror connector resources",
+                    "label": "Connect",
                     "applicationDisplayName": "Infinity Mirror Connector Application"
                   },
                   "type": "DeployPushConnectorButton"
@@ -756,7 +756,7 @@
         "contentKind": "Solution",
         "contentProductId": "[variables('_solutioncontentProductId')]",
         "id": "[variables('_solutioncontentProductId')]",
-        "icon": "<img src=\"https://raw.githubusercontent.com/jcoliz/Azure-Sentinel/refs/heads/master/Logos/InfinityMirror.svg\" width=\"75px\" height=\"75px\">",
+        "icon": "<img src=\"https://raw.githubusercontent.com/jcoliz/Azure-Sentinel/refs/heads/topic/infinity-mirror/Logos/InfinityMirror.svg\" width=\"75px\" height=\"75px\">",
         "contentId": "[variables('_solutionId')]",
         "parentId": "[variables('_solutionId')]",
         "source": {
