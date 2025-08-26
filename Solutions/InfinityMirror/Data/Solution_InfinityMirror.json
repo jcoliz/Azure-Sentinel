@@ -1,5 +1,5 @@
 {
-    "Name": "Infinity Mirror",
+    "Name": "InfinityMirror",
     "Author": "James Coliz - jcoliz@outlook.com",
     "Logo": "<img src=\"https://raw.githubusercontent.com/jcoliz/Azure-Sentinel/refs/heads/master/Logos/InfinityMirror.svg\" width=\"75px\" height=\"75px\">",
     "Description": "The Infinity Mirror solution for Microsoft Sentinel enables you to ingest Infinity Mirror deception events into Microsoft Sentinel using the Microsoft Sentinel Analytics Workspace.",
@@ -7,7 +7,7 @@
       "Data Connectors/InfinityMirror_ccp/InfinityMirror_Definition.json"
     ],
     "BasePath": "C:\\source\\Azure\\Azure-Sentinel\\Solutions\\InfinityMirror",
-    "Version": "1.0.0",
+    "Version": "3.0.0",
     "Metadata": "SolutionMetadata.json",
     "TemplateSpec": true,
     "Is1PConnector": false
