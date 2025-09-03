@@ -252,7 +252,7 @@
                 },
                 "support": {
                   "name": "InfinityMirror",
-                  "email": "jcoliz@outlook.com",
+                  "email": "j@coliz.com",
                   "tier": "Partner",
                   "link": "https://infinitymirror.coliz.com"
                 },
@@ -268,7 +268,7 @@
               }
             },
             {
-              "name": "InfinityMirrorDeceptionEvents_DCR",
+              "name": "InfinityMirrorDeception_DCR",
               "apiVersion": "2022-06-01",
               "type": "Microsoft.Insights/dataCollectionRules",
               "location": "[parameters('workspace-location')]",
@@ -610,7 +610,7 @@
         },
         "support": {
           "name": "InfinityMirror",
-          "email": "jcoliz@outlook.com",
+          "email": "j@coliz.com",
           "tier": "Partner",
           "link": "https://infinitymirror.coliz.com"
         },
@@ -697,7 +697,7 @@
                 },
                 "support": {
                   "name": "InfinityMirror",
-                  "email": "jcoliz@outlook.com",
+                  "email": "j@coliz.com",
                   "tier": "Partner",
                   "link": "https://infinitymirror.coliz.com"
                 }
@@ -770,7 +770,7 @@
         },
         "support": {
           "name": "InfinityMirror",
-          "email": "jcoliz@outlook.com",
+          "email": "j@coliz.com",
           "tier": "Partner",
           "link": "https://infinitymirror.coliz.com"
         },
