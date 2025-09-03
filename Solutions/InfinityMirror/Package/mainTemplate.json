@@ -276,43 +276,75 @@
               "properties": {
                 "dataCollectionEndpointId": "[variables('dataCollectionEndpointId1')]",
                 "streamDeclarations": {
-                  "Custom-InfinityMirrorDetectionEvents": {
+                  "Custom-InfinityMirrorDeceptionEvents": {
                     "columns": [
                       {
-                        "name": "TimeGenerated",
+                        "name": "TimeOnClient",
                         "type": "datetime"
                       },
                       {
-                        "name": "audit_event",
+                        "name": "Id",
                         "type": "string"
                       },
                       {
-                        "name": "remote_address",
+                        "name": "Message",
                         "type": "string"
                       },
                       {
-                        "name": "category",
-                        "type": "string"
-                      },
-                      {
-                        "name": "client_version",
-                        "type": "string"
-                      },
-                      {
-                        "name": "enterprise_id",
-                        "type": "int"
-                      },
-                      {
-                        "name": "username",
-                        "type": "string"
-                      },
-                      {
-                        "name": "timestamp",
-                        "type": "datetime"
-                      },
-                      {
-                        "name": "data",
+                        "name": "Properties",
                         "type": "dynamic"
+                      },
+                      {
+                        "name": "Category",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Severity",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Campaign",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Decoy",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "DeviceEventClass",
+                        "type": "string"
+                      },
+                      {
+                        "name": "SourceAddress",
+                        "type": "string"
+                      },
+                      {
+                        "name": "SourceHostName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "SourceHostId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "DestinationAddress",
+                        "type": "string"
+                      },
+                      {
+                        "name": "DestinationPort",
+                        "type": "string"
+                      },
+                      {
+                        "name": "MitreTechnique",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "FileHash",
+                        "type": "string"
+                      },
+                      {
+                        "name": "User",
+                        "type": "string"
                       }
                     ]
                   }
