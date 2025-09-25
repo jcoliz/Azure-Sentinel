@@ -61,7 +61,7 @@
     "email": "support@microsoft.com",
     "_email": "[variables('email')]",
     "_solutionName": "[concat('SentinelOne-', parameters('ukey'))]",
-    "_solutionVersion": "3.0.11",
+    "_solutionVersion": "3.0.15",
     "solutionId": "[concat('azuresentinel.azure-sentinel-solution-sentinelone-', parameters('ukey'))]",
     "_solutionId": "[variables('solutionId')]",
     "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
@@ -373,19 +373,10 @@
                         },
                         {
                           "parameters": {
-                            "label": "SentinelOne Management URL",
+                            "label": "[concat('SentinelOne Management URL', parameters('ukey'))]",
                             "placeholder": "https://example.sentinelone.net/",
                             "type": "text",
                             "name": "managementUrl"
-                          },
-                          "type": "Textbox"
-                        },
-                        {
-                          "parameters": {
-                            "label": "API Token",
-                            "placeholder": "API Token",
-                            "type": "securestring",
-                            "name": "apitoken"
                           },
                           "type": "Textbox"
                         },
@@ -448,7 +439,7 @@
               }
             },
             {
-              "name": "SentinelOneActivitiesDCR",
+              "name": "[concat('SentinelOneActivitiesDCR-', parameters('ukey'))]",
               "apiVersion": "2022-06-01",
               "type": "Microsoft.Insights/dataCollectionRules",
               "location": "[parameters('workspace-location')]",
@@ -2343,7 +2334,7 @@
                   "timeoutInSeconds": 60,
                   "headers": {
                     "Accept": "application/json",
-                    "User-Agent": "Scuba"
+                    "User-Agent": "[concat('Scuba/', parameters('ukey') , '/' , variables('_solutionVersion'))]"
                   }
                 },
                 "paging": {
@@ -2516,7 +2507,7 @@
                   "nextSteps": [
                     {
                       "stepId": "fetchAlertActivities",
-                      "stepPlaceholdersParsingKql": "source"
+                      "stepPlaceholdersParsingKql": "source | project res = parse_json(data) | project containerInfo = res.containerInfo, ruleInfo = res.ruleInfo"
                     }
                   ]
                 },
@@ -2526,9 +2517,9 @@
                       "httpMethod": "GET",
                       "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'alert/activities')]",
                       "queryParameters": {
-                        "limit": 10,
+                        "limit": 3,
                         "requireTotalCount": true,
-                        "filter": "CONTAINER = \"{$containerInfo$}\" AND rule IN (\"{$ruleInfo$}\")"
+                        "filter": "CONTAINER = \"$containerInfo$\" AND rule IN (\"$ruleInfo$\")"
                       },
                       "headers": {
                         "Accept": "application/json",
