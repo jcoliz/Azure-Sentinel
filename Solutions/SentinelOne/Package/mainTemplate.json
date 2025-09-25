@@ -61,7 +61,7 @@
     "email": "support@microsoft.com",
     "_email": "[variables('email')]",
     "_solutionName": "[concat('SentinelOne-', parameters('ukey'))]",
-    "_solutionVersion": "3.0.7",
+    "_solutionVersion": "3.0.11",
     "solutionId": "[concat('azuresentinel.azure-sentinel-solution-sentinelone-', parameters('ukey'))]",
     "_solutionId": "[variables('solutionId')]",
     "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
@@ -377,6 +377,15 @@
                             "placeholder": "https://example.sentinelone.net/",
                             "type": "text",
                             "name": "managementUrl"
+                          },
+                          "type": "Textbox"
+                        },
+                        {
+                          "parameters": {
+                            "label": "API Token",
+                            "placeholder": "API Token",
+                            "type": "securestring",
+                            "name": "apitoken"
                           },
                           "type": "Textbox"
                         },
@@ -2462,7 +2471,7 @@
               "properties": {
                 "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
-                  "streamName": "Custom-SentinelOneAlerts_API",
+                  "streamName": "Custom-SentinelOneActivities_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
                   "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
                 },
@@ -2501,6 +2510,37 @@
                   "eventsJsonPaths": [
                     "$.data"
                   ]
+                },
+                "stepInfo": {
+                  "stepType": "Nested",
+                  "nextSteps": [
+                    {
+                      "stepId": "fetchAlertActivities",
+                      "stepPlaceholdersParsingKql": "source"
+                    }
+                  ]
+                },
+                "stepCollectorConfigs": {
+                  "fetchAlertActivities": {
+                    "request": {
+                      "httpMethod": "GET",
+                      "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'alert/activities')]",
+                      "queryParameters": {
+                        "limit": 10,
+                        "requireTotalCount": true,
+                        "filter": "CONTAINER = \"{$containerInfo$}\" AND rule IN (\"{$ruleInfo$}\")"
+                      },
+                      "headers": {
+                        "Accept": "application/json",
+                        "User-Agent": "Scuba"
+                      }
+                    },
+                    "response": {
+                      "eventsJsonPaths": [
+                        "$.data"
+                      ]
+                    }
+                  }
                 }
               }
             },
