@@ -21,6 +21,12 @@
         "description": "[concat('Region to deploy solution resources -- separate from location selection',parameters('location'))]"
       }
     },
+    "ukey": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique key for this deployment"
+      }
+    },
     "workspace": {
       "defaultValue": "",
       "type": "string",
@@ -54,20 +60,20 @@
   "variables": {
     "email": "support@microsoft.com",
     "_email": "[variables('email')]",
-    "_solutionName": "SentinelOne",
-    "_solutionVersion": "3.0.6",
-    "solutionId": "azuresentinel.azure-sentinel-solution-sentinelone",
+    "_solutionName": "[concat('SentinelOne-', parameters('ukey'))]",
+    "_solutionVersion": "3.0.7",
+    "solutionId": "[concat('azuresentinel.azure-sentinel-solution-sentinelone-', parameters('ukey'))]",
     "_solutionId": "[variables('solutionId')]",
     "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
     "dataConnectorCCPVersion": "1.0.0",
-    "_dataConnectorContentIdConnectorDefinition1": "SentinelOneCCP",
+    "_dataConnectorContentIdConnectorDefinition1": "[concat('SentinelOneCCP-', parameters('ukey'))]",
     "dataConnectorTemplateNameConnectorDefinition1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition1')))]",
-    "_dataConnectorContentIdConnections1": "SentinelOneCCPConnections",
+    "_dataConnectorContentIdConnections1": "[concat('SentinelOneCCPConnections-', parameters('ukey'))]",
     "dataConnectorTemplateNameConnections1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnections1')))]",
     "blanks": "[replace('b', 'b', '')]",
-    "uiConfigId2": "SentinelOne",
+    "uiConfigId2": "[concat('SentinelOne-', parameters('ukey'))]",
     "_uiConfigId2": "[variables('uiConfigId2')]",
-    "dataConnectorContentId2": "SentinelOne",
+    "dataConnectorContentId2": "[concat('SentinelOne-', parameters('ukey'))]",
     "_dataConnectorContentId2": "[variables('dataConnectorContentId2')]",
     "dataConnectorId2": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectors', variables('_dataConnectorContentId2'))]",
     "_dataConnectorId2": "[variables('dataConnectorId2')]",
@@ -75,7 +81,7 @@
     "dataConnectorVersion2": "1.0.0",
     "_dataConnectorcontentProductId2": "[concat(take(variables('_solutionId'),50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentId2'),'-', variables('dataConnectorVersion2'))))]",
     "workbookVersion1": "1.0.0",
-    "workbookContentId1": "SentinelOneWorkbook",
+    "workbookContentId1": "[concat('SentinelOneWorkbook-', parameters('ukey'))]",
     "workbookId1": "[resourceId('Microsoft.Insights/workbooks', variables('workbookContentId1'))]",
     "workbookTemplateSpecName1": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat(parameters('workspace'),'-wb-',uniquestring(variables('_workbookContentId1'))))]",
     "_workbookContentId1": "[variables('workbookContentId1')]",
@@ -227,7 +233,7 @@
       ],
       "properties": {
         "contentId": "[variables('_dataConnectorContentIdConnectorDefinition1')]",
-        "displayName": "SentinelOne",
+        "displayName": "[concat('SentinelOne-', parameters('ukey'))]",
         "contentKind": "DataConnector",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -243,8 +249,8 @@
               "kind": "Customizable",
               "properties": {
                 "connectorUiConfig": {
-                  "id": "SentinelOneCCP",
-                  "title": "SentinelOne",
+                  "id": "[concat('SentinelOneCCP-', parameters('ukey'))]",
+                  "title": "[concat('SentinelOne-', parameters('ukey'))]",
                   "publisher": "Microsoft",
                   "descriptionMarkdown": "The [SentinelOne](https://usea1-nessat.sentinelone.net/api-doc/overview) data connector allows ingesting logs from the SentinelOne API into Microsoft Sentinel. The data connector is built on Microsoft Sentinel Codeless Connector Platform. It uses the SentinelOne API to fetch logs and it supports DCR-based [ingestion time transformations](https://docs.microsoft.com/azure/azure-monitor/logs/custom-logs-overview) that parses the received security data into a custom table so that queries don't need to parse it again, thus resulting in better performance.",
                   "graphQueries": [
@@ -2033,8 +2039,8 @@
       "kind": "Customizable",
       "properties": {
         "connectorUiConfig": {
-          "id": "SentinelOneCCP",
-          "title": "SentinelOne",
+          "id": "[concat('SentinelOneCCP-', parameters('ukey'))]",
+          "title": "[concat('SentinelOne-', parameters('ukey'))]",
           "publisher": "Microsoft",
           "descriptionMarkdown": "The [SentinelOne](https://usea1-nessat.sentinelone.net/api-doc/overview) data connector allows ingesting logs from the SentinelOne API into Microsoft Sentinel. The data connector is built on Microsoft Sentinel Codeless Connector Platform. It uses the SentinelOne API to fetch logs and it supports DCR-based [ingestion time transformations](https://docs.microsoft.com/azure/azure-monitor/logs/custom-logs-overview) that parses the received security data into a custom table so that queries don't need to parse it again, thus resulting in better performance.",
           "graphQueries": [
@@ -2165,15 +2171,6 @@
                 },
                 {
                   "parameters": {
-                    "label": "API Token",
-                    "placeholder": "API Token",
-                    "type": "securestring",
-                    "name": "apitoken"
-                  },
-                  "type": "Textbox"
-                },
-                {
-                  "parameters": {
                     "label": "toggle",
                     "name": "toggle"
                   },
@@ -2231,14 +2228,14 @@
       ],
       "properties": {
         "contentId": "[variables('_dataConnectorContentIdConnections1')]",
-        "displayName": "SentinelOne",
+        "displayName": "[concat('SentinelOne-', parameters('ukey'))]",
         "contentKind": "ResourcesDataConnector",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('dataConnectorCCPVersion')]",
           "parameters": {
             "connectorDefinitionName": {
-              "defaultValue": "SentinelOne",
+              "defaultValue": "[concat('SentinelOne-', parameters('ukey'))]",
               "type": "string",
               "minLength": 1
             },
@@ -2301,7 +2298,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneActivities_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -2309,10 +2306,19 @@
                 },
                 "dataType": "SentinelOne API",
                 "auth": {
-                  "type": "APIKey",
-                  "ApiKey": "[[parameters('apitoken')]",
-                  "ApiKeyName": "Authorization",
-                  "ApiKeyIdentifier": "ApiToken"
+                    "type": "JwtToken",
+                    "userName": {
+                        "key": "username",
+                        "value": "us3r"
+                    },
+                    "password": {
+                        "key": "password",
+                        "value": "passw0rd"
+                    },
+                    "IsJsonRequest": true,
+                    "JwtTokenJsonPath": "$.token",
+                    "TokenEndpoint": "[[concat(parameters('managementUrl'),'/auth/token')]",
+                    "ApiKeyName": "Authorization"
                 },
                 "request": {
                   "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'activities')]",
@@ -2352,7 +2358,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneAgents_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -2403,7 +2409,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneAgents_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -2454,7 +2460,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneAlerts_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -2505,7 +2511,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneGroups_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -2556,7 +2562,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneThreats_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -2607,7 +2613,7 @@
               "location": "[parameters('workspace-location')]",
               "kind": "RestApiPoller",
               "properties": {
-                "connectorDefinitionName": "SentinelOneCCP",
+                "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
                   "streamName": "Custom-SentinelOneThreats_API",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
@@ -3960,7 +3966,7 @@
                 "version": "[variables('analyticRuleObject7').analyticRuleVersion7]",
                 "source": {
                   "kind": "Solution",
-                  "name": "SentinelOne",
+                  "name": "[concat('SentinelOne-', parameters('ukey'))]",
                   "sourceId": "[variables('_solutionId')]"
                 },
                 "author": {
