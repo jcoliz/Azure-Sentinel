@@ -446,6 +446,18 @@
               "kind": "[variables('blanks')]",
               "properties": {
                 "streamDeclarations": {
+                  "Custom-SentinelOneAlertsJoined_CL": {
+                    "columns": [
+                      {
+                        "name": "alert",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "group",
+                        "type": "dynamic"
+                      }
+                    ]
+                  },
                   "Custom-SentinelOneActivities_API": {
                     "columns": [
                       {
@@ -1073,6 +1085,16 @@
                 "dataFlows": [
                   {
                     "streams": [
+                      "Custom-SentinelOneAlertsJoined_CL"
+                    ],
+                    "destinations": [
+                      "clv2ws1"
+                    ],
+                    "transformKql": "source | extend TimeGenerated = now()",
+                    "outputStream": "Custom-SentinelOneAlertsJoined_CL"
+                  },
+                  {
+                    "streams": [
                       "Custom-SentinelOneActivities_API"
                     ],
                     "destinations": [
@@ -1125,6 +1147,34 @@
                 "dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]"
               }
             },
+            {
+              "name": "SentinelOneAlertsJoined_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "SentinelOneAlertsJoined_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "Datetime",
+                      "isDefaultDisplay": true,
+                      "description": "The timestamp (UTC) reflecting the time in which the event was generated."
+                    },
+                    {
+                      "name": "alert",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "group",
+                      "type": "dynamic"
+                    }
+                  ]
+                }
+              }
+            },            
             {
               "name": "SentinelOneThreats_CL",
               "apiVersion": "2022-10-01",
@@ -2462,7 +2512,7 @@
               "properties": {
                 "connectorDefinitionName": "[concat('SentinelOneCCP-', parameters('ukey'))]",
                 "dcrConfig": {
-                  "streamName": "Custom-SentinelOneActivities_API",
+                  "streamName": "Custom-SentinelOneAlertsJoined_CL",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
                   "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
                 },
@@ -2502,18 +2552,53 @@
                     "$.data"
                   ]
                 },
+                "shouldJoinNestedData": true,
+                "joinedDataStepName": "alert",
                 "stepInfo": {
                   "stepType": "Nested",
                   "nextSteps": [
                     {
-                      "stepId": "fetchAlertActivities",
+                      "stepId": "fetchAlertGroups",
                       "stepPlaceholdersParsingKql": "source | project res = parse_json(data) | project containerInfo = res.containerInfo, ruleInfo = res.ruleInfo"
                     }
                   ]
                 },
                 "stepCollectorConfigs": {
+                  "fetchAlertGroups": {
+                    "shouldJoinNestedData": true,
+                    "joinedDataStepName": "group",
+                    "stepInfo": {
+                      "stepType": "Nested",
+                      "nextSteps": [
+                        {
+                          "stepId": "fetchAlertActivities",
+                          "stepPlaceholdersParsingKql": "source"
+                        }
+                      ]
+                    },
+                    "request": {
+                      "httpMethod": "GET",
+                      "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'groups')]",
+                      "queryParameters": {
+                        "limit": 1,
+                        "requireTotalCount": true,
+                        "filter": "CONTAINER = \"$containerInfo$\""
+                      },
+                      "headers": {
+                        "Accept": "application/json",
+                        "User-Agent": "Scuba"
+                      }
+                    },
+                    "response": {
+                      "eventsJsonPaths": [
+                        "$.data"
+                      ]
+                    }
+                  },
                   "fetchAlertActivities": {
                     "request": {
+                      "shouldJoinNestedData": true,
+                      "joinedDataStepName": "activities",
                       "httpMethod": "GET",
                       "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'alert/activities')]",
                       "queryParameters": {
