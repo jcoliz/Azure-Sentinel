@@ -455,6 +455,10 @@
                       {
                         "name": "group",
                         "type": "dynamic"
+                      },
+                      {
+                        "name": "activities",
+                        "type": "dynamic"
                       }
                     ]
                   },
@@ -1169,6 +1173,10 @@
                     },
                     {
                       "name": "group",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "activities",
                       "type": "dynamic"
                     }
                   ]
@@ -2537,7 +2545,7 @@
                   "timeoutInSeconds": 60,
                   "headers": {
                     "Accept": "application/json",
-                    "User-Agent": "Scuba"
+                    "User-Agent": "[concat('Scuba/nested0/', parameters('ukey') , '/' , variables('_solutionVersion'))]"
                   }
                 },
                 "paging": {
@@ -2586,7 +2594,7 @@
                       },
                       "headers": {
                         "Accept": "application/json",
-                        "User-Agent": "Scuba"
+                        "User-Agent": "[concat('Scuba/nested1/', parameters('ukey') , '/' , variables('_solutionVersion'))]"
                       }
                     },
                     "response": {
@@ -2608,7 +2616,7 @@
                       },
                       "headers": {
                         "Accept": "application/json",
-                        "User-Agent": "Scuba"
+                        "User-Agent": "[concat('Scuba/nested2/', parameters('ukey') , '/' , variables('_solutionVersion'))]"
                       }
                     },
                     "response": {
