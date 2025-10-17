@@ -2596,9 +2596,9 @@
                     }
                   },
                   "fetchAlertActivities": {
+                    "shouldJoinNestedData": true,
+                    "joinedDataStepName": "activities",
                     "request": {
-                      "shouldJoinNestedData": true,
-                      "joinedDataStepName": "activities",
                       "httpMethod": "GET",
                       "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'alert/activities')]",
                       "queryParameters": {
