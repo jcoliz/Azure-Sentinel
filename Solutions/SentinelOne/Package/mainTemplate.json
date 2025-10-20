@@ -1104,7 +1104,7 @@
                     "destinations": [
                       "clv2ws1"
                     ],
-                    "transformKql": "source | extend extended = extending[0] | project IngestionTime = now(), TimeGenerated = todatetime(extended.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = extended.id, AssetType = \"container\", AssetSource = \"synthetic\", Risks = alert.ruleInfo, Provider = \"SentinelOne\", AssetName = alert.containerInfo",
+                    "transformKql": "source | extend extended = extending[0] | project IngestionTime = now(), TimeGenerated = todatetime(extended.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = tostring(extended.id), AssetType = \"container\", AssetSource = \"synthetic\", Risks = tostring(alert.ruleInfo), Provider = \"SentinelOne\", AssetName = tostring(alert.containerInfo)",
                     "outputStream": "Custom-SentinelOneAssetStore_CL"
                   },
                   {
