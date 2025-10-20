@@ -457,7 +457,7 @@
                         "type": "dynamic"
                       },
                       {
-                        "name": "activities",
+                        "name": "extending",
                         "type": "dynamic"
                       }
                     ]
@@ -1099,6 +1099,16 @@
                   },
                   {
                     "streams": [
+                      "Custom-SentinelOneAlertsJoined_CL"
+                    ],
+                    "destinations": [
+                      "clv2ws1"
+                    ],
+                    "transformKql": "source | extend extended = extending[0] | project IngestionTime = now(), TimeGenerated = todatetime(extended.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = extended.id, AssetType = \"container\", AssetSource = \"synthetic\", Risks = alert.ruleInfo, Provider = \"SentinelOne\", AssetName = alert.containerInfo",
+                    "outputStream": "Custom-SentinelOneAssetStore_CL"
+                  },
+                  {
+                    "streams": [
                       "Custom-SentinelOneActivities_API"
                     ],
                     "destinations": [
@@ -1176,8 +1186,80 @@
                       "type": "dynamic"
                     },
                     {
-                      "name": "activities",
+                      "name": "extending",
                       "type": "dynamic"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "SentinelOneAssetStore_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "SentinelOneAssetStore_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime",
+                      "isDefaultDisplay": true,
+                      "description": "The timestamp (UTC) reflecting the time in which the event was generated."
+                    },
+                    {
+                      "name": "IngestionTime",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "AssetID",
+                      "type": "string"
+                    },
+                    {
+                      "name": "AssetName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "AssetType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "AssetSource",
+                      "type": "string"
+                    },
+                    {
+                      "name": "DeviceName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "UserName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "CreatedDateTime",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "ThreatDetected",
+                      "type": "boolean"
+                    },
+                    {
+                      "name": "ThreatCategory",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ThreatName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Provider",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Risks",
+                      "type": "string"
                     }
                   ]
                 }
@@ -2605,7 +2687,7 @@
                   },
                   "fetchAlertActivities": {
                     "shouldJoinNestedData": true,
-                    "joinedDataStepName": "activities",
+                    "joinedDataStepName": "extending",
                     "request": {
                       "httpMethod": "GET",
                       "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'alert/activities')]",
