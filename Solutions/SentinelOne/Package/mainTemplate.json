@@ -457,7 +457,7 @@
                         "type": "dynamic"
                       },
                       {
-                        "name": "extending",
+                        "name": "expand",
                         "type": "dynamic"
                       }
                     ]
@@ -1104,7 +1104,7 @@
                     "destinations": [
                       "clv2ws1"
                     ],
-                    "transformKql": "source | extend extended = extending[0] | project IngestionTime = now(), TimeGenerated = todatetime(extended.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = tostring(extended.id), AssetType = \"container\", AssetSource = \"synthetic\", Risks = tostring(alert.ruleInfo), Provider = \"SentinelOne\", AssetName = tostring(alert.containerInfo)",
+                    "transformKql": "source | project alert, group, expand = expand[0] | project IngestionTime = now(), TimeGenerated = todatetime(expand.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = tostring(expand.id), AssetType = \"container\", AssetSource = tostring(expand.comments), Risks = tostring(alert.ruleInfo), Provider = \"SentinelOne\", AssetName = tostring(alert.containerInfo)",
                     "outputStream": "Custom-SentinelOneAssetStore_CL"
                   },
                   {
@@ -1186,7 +1186,7 @@
                       "type": "dynamic"
                     },
                     {
-                      "name": "extending",
+                      "name": "expand",
                       "type": "dynamic"
                     }
                   ]
@@ -2687,7 +2687,7 @@
                   },
                   "fetchAlertActivities": {
                     "shouldJoinNestedData": true,
-                    "joinedDataStepName": "extending",
+                    "joinedDataStepName": "expand",
                     "request": {
                       "httpMethod": "GET",
                       "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'alert/activities')]",
