@@ -1104,7 +1104,7 @@
                     "destinations": [
                       "clv2ws1"
                     ],
-                    "transformKql": "source | project alert, group, expand = expand[0] | project IngestionTime = now(), TimeGenerated = todatetime(expand.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = tostring(expand.id), AssetType = \"container\", AssetSource = tostring(expand.comments), Risks = tostring(alert.ruleInfo), Provider = \"SentinelOne\", AssetName = tostring(alert.containerInfo)",
+                    "transformKql": "source | project IngestionTime = now(), TimeGenerated = todatetime(expand.createdAt), CreatedDateTime = todatetime(group.createdAt), AssetID = tostring(expand.id), AssetType = \"container\", AssetSource = tostring(expand.comments), Risks = tostring(alert.ruleInfo), Provider = \"SentinelOne\", AssetName = tostring(alert.containerInfo)",
                     "outputStream": "Custom-SentinelOneAssetStore_CL"
                   },
                   {
@@ -2641,6 +2641,9 @@
                   "eventsJsonPaths": [
                     "$.data"
                   ]
+                },
+                "extra": {
+                  "transformName": "/ASI/Microsoft/MvExpandTransformer"
                 },
                 "shouldJoinNestedData": true,
                 "joinedDataStepName": "alert",
