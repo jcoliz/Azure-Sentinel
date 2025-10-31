@@ -2642,9 +2642,6 @@
                     "$.data"
                   ]
                 },
-                "extra": {
-                  "transformName": "/ASI/Microsoft/MvExpandTransformer"
-                },
                 "shouldJoinNestedData": true,
                 "joinedDataStepName": "alert",
                 "stepInfo": {
@@ -2708,6 +2705,9 @@
                       "eventsJsonPaths": [
                         "$.data"
                       ]
+                    },
+                    "extra": {
+                      "transformName": "/ASI/Microsoft/MvExpandTransformer"
                     }
                   }
                 }
