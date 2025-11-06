@@ -6,25 +6,31 @@ param(
     [string]
     $Location
 )
+$ErrorActionPreference = "Stop"
 
 $Suffix = "$env:USERNAME-$Sequence"
-$Workspace = "sentinel-$Suffix"
 $ResourceGroup = "sentinel-rg-$Suffix"
 
 Write-Output "Creating Resource Group $ResourceGroup in $Location"
-az group create --name $ResourceGroup --location $Location
+$rg = az group create --name $ResourceGroup --location $Location | ConvertFrom-Json
 
-Write-Output "Creating Sentinel Workspace $Workspace in $ResourceGroup"
-az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file C:\Source\jcoliz\AzDeploy.Bicep\SecurityInsights\sentinel-complete.bicep --parameter suffix=$Suffix
+Write-Output "OK $($rg.id)"
+Write-Output ""
 
-Write-Output "OK"
+Write-Output "Creating Sentinel Workspace in $ResourceGroup"
+$sentinel = az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file C:\Source\jcoliz\AzDeploy.Bicep\SecurityInsights\sentinel-complete.bicep --parameter suffix=$Suffix | ConvertFrom-Json
+
+$workspaceName = $sentinel.properties.outputs.logAnalyticsName.value
+$workspaceId = $sentinel.properties.outputs.logAnalyticsWorkspaceId.value
+
+Write-Output "OK $workspaceName ID: $workspaceId"
 Write-Output ""
 
 Write-Output "Deploying solution to Workspace $Workspace"
-$r2 = az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file .\Package\mainTemplate.json --parameter workspace-location=$Location --parameter workspace=$Workspace --parameter ukey=$Sequence | ConvertFrom-Json
+az deployment group create --name "Deploy-$(Get-Random)" --resource-group $ResourceGroup --template-file .\Package\mainTemplate.json --parameter workspace-location=$Location --parameter workspace=$workspaceName --parameter ukey=$Sequence
 
 Write-Output "OK"
 Write-Output ""
 
 Write-Output "RG: $ResourceGroup in $Location"
-Write-Output "LA: $Workspace"
+Write-Output "LA: $workspaceName ID: $workspaceId"
