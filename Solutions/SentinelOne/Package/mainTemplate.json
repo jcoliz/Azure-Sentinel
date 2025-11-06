@@ -2613,6 +2613,9 @@
                   "ApiKeyName": "Authorization",
                   "ApiKeyIdentifier": "ApiToken"
                 },
+                "extra": {
+                  "nestedTransformName": "/ASI/Microsoft/MvExpandTransformer"
+                },
                 "request": {
                   "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'cloud-detection/alerts')]",
                   "rateLimitQPS": 10,
@@ -2705,9 +2708,6 @@
                       "eventsJsonPaths": [
                         "$.data"
                       ]
-                    },
-                    "extra": {
-                      "transformName": "/ASI/Microsoft/MvExpandTransformer"
                     }
                   }
                 }
