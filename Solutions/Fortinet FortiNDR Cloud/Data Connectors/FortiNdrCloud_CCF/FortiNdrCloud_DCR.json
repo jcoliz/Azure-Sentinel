@@ -1,0 +1,152 @@
+{
+  "name": "FortiNdrCloudDCR",
+  "type": "Microsoft.Insights/dataCollectionRules",
+  "apiVersion": "2021-09-01-preview",
+  "location": "{{location}}",
+  "properties": {
+    "description": "Data collection rule for Fortinet FortiNDR Cloud Detections",
+    "streamDeclarations": {
+      "Custom-FncEventsDetections_CL": {
+        "columns": [
+          {
+            "name": "TimeGenerated",
+            "type": "datetime"
+          },
+          {
+            "name": "uuid",
+            "type": "string"
+          },
+          {
+            "name": "device_ip",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "first_seen",
+            "type": "string"
+          },
+          {
+            "name": "last_seen",
+            "type": "string"
+          },
+          {
+            "name": "created",
+            "type": "string"
+          },
+          {
+            "name": "resolved_timestamp",
+            "type": "string"
+          },
+          {
+            "name": "resolution",
+            "type": "string"
+          },
+          {
+            "name": "resolution_comment",
+            "type": "string"
+          },
+          {
+            "name": "resolution_user_uuid",
+            "type": "string"
+          },
+          {
+            "name": "rule_uuid",
+            "type": "string"
+          },
+          {
+            "name": "rule_name",
+            "type": "string"
+          },
+          {
+            "name": "rule_severity",
+            "type": "string"
+          },
+          {
+            "name": "rule_confidence",
+            "type": "string"
+          },
+          {
+            "name": "rule_category",
+            "type": "string"
+          },
+          {
+            "name": "rule_primary_attack_id",
+            "type": "string"
+          },
+          {
+            "name": "rule_secondary_attack_id",
+            "type": "string"
+          },
+          {
+            "name": "rule_url",
+            "type": "string"
+          },
+          {
+            "name": "rule_description",
+            "type": "string"
+          },
+          {
+            "name": "rule_signature",
+            "type": "string"
+          },
+          {
+            "name": "muted",
+            "type": "boolean"
+          },
+          {
+            "name": "muted_device",
+            "type": "boolean"
+          },
+          {
+            "name": "muted_rule",
+            "type": "boolean"
+          },
+          {
+            "name": "indicator_count",
+            "type": "int"
+          },
+          {
+            "name": "indicators",
+            "type": "dynamic"
+          },
+          {
+            "name": "events",
+            "type": "dynamic"
+          },
+          {
+            "name": "account_uuid",
+            "type": "string"
+          },
+          {
+            "name": "sensor_id",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "destinations": {
+      "logAnalytics": [
+        {
+          "workspaceResourceId": "{{workspaceResourceId}}",
+          "workspaceId": "{{workspaceId}}",
+          "name": "la1"
+        }
+      ]
+    },
+    "dataFlows": [
+      {
+        "streams": [
+          "Custom-FncEventsDetections_CL"
+        ],
+        "destinations": [
+          "la1"
+        ],
+        "outputStream": "Custom-FncEventsDetections_CL",
+        "transformKql": "source | extend TimeGenerated = now(), DetectionUuid = tostring(uuid), DeviceIp = tostring(device_ip), Status = tostring(status), FirstSeen = todatetime(first_seen), LastSeen = todatetime(last_seen), Created = todatetime(created), ResolvedTimestamp = todatetime(resolved_timestamp), Resolution = tostring(resolution), ResolutionComment = tostring(resolution_comment), ResolutionUserUuid = tostring(resolution_user_uuid), RuleUuid = tostring(rule_uuid), RuleName = tostring(rule_name), RuleSeverity = tostring(rule_severity), RuleConfidence = tostring(rule_confidence), RuleCategory = tostring(rule_category), RulePrimaryAttackId = tostring(rule_primary_attack_id), RuleSecondaryAttackId = tostring(rule_secondary_attack_id), RuleUrl = tostring(rule_url), RuleDescription = tostring(rule_description), RuleSignature = tostring(rule_signature), Muted = tobool(muted), MutedDevice = tobool(muted_device), MutedRule = tobool(muted_rule), IndicatorCount = toint(indicator_count), Indicators = indicators, Events = events, AccountUuid = tostring(account_uuid), SensorId = tostring(sensor_id) | project TimeGenerated, DetectionUuid, DeviceIp, Status, FirstSeen, LastSeen, Created, ResolvedTimestamp, Resolution, ResolutionComment, ResolutionUserUuid, RuleUuid, RuleName, RuleSeverity, RuleConfidence, RuleCategory, RulePrimaryAttackId, RuleSecondaryAttackId, RuleUrl, RuleDescription, RuleSignature, Muted, MutedDevice, MutedRule, IndicatorCount, Indicators, Events, AccountUuid, SensorId"
+      }
+    ]
+  }
+}

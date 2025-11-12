@@ -1,0 +1,61 @@
+[
+  {
+    "name": "FortiNdrCloudDetections",
+    "apiVersion": "2023-01-01-preview",
+    "type": "Microsoft.SecurityInsights/dataConnectors",
+    "location": "{{location}}",
+    "kind": "RestApiPoller",
+    "properties": {
+      "connectorDefinitionName": "FortiNdrCloudConnectorDefinition",
+      "dataType": "FncEventsDetections_CL",
+      "auth": {
+        "type": "APIKey",
+        "ApiKeyName": "Authorization",
+        "ApiKeyIdentifier": "IBToken",
+        "ApiKey": "{{FncApiToken}}"
+      },
+      "request": {
+        "apiEndpoint": "https://detections.{{FncApiDomain}}/v1/detections",
+        "httpMethod": "GET",
+        "queryTimeFormat": "yyyy-MM-ddTHH:mm:ss.fffZ",
+        "startTimeAttributeName": "created_or_shared_start_date",
+        "endTimeAttributeName": "created_or_shared_end_date",
+        "queryWindowInMin": 10,
+        "queryParameters": {
+          "account_uuid": "{{FncAccountUuid}}",
+          "status": "{{DetectionStatus}}",
+          "muted": "{{PullMuted}}",
+          "muted_rule": "{{PullMuted}}",
+          "muted_device": "{{PullMuted}}",
+          "include": "rules,indicators",
+          "sort_by": "device_ip",
+          "sort_order": "asc"
+        },
+        "rateLimitQPS": 1,
+        "timeoutInSeconds": 70,
+        "retryCount": 3,
+        "headers": {
+          "User-Agent": "Microsoft-Sentinel-FortiNdrCloud/1.0",
+          "Content-Type": "application/json"
+        }
+      },
+      "paging": {
+        "pagingType": "Offset",
+        "offsetParaName": "offset",
+        "pageSizeParaName": "limit",
+        "pageSize": 10000
+      },
+      "response": {
+        "eventsJsonPaths": [
+          "$.detections"
+        ],
+        "format": "json"
+      },
+      "dcrConfig": {
+        "dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+        "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}",
+        "streamName": "Custom-FncEventsDetections_CL"
+      }
+    }
+  }
+]

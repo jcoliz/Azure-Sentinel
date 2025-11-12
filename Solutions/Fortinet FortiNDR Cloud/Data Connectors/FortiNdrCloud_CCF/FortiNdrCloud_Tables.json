@@ -1,0 +1,131 @@
+[
+  {
+    "name": "FncEventsDetections_CL",
+    "type": "Microsoft.OperationalInsights/workspaces/tables",
+    "apiVersion": "2021-12-01-preview",
+    "location": "{{location}}",
+    "properties": {
+      "schema": {
+        "name": "FncEventsDetections_CL",
+        "columns": [
+          {
+            "name": "TimeGenerated",
+            "type": "datetime"
+          },
+          {
+            "name": "DetectionUuid",
+            "type": "string"
+          },
+          {
+            "name": "DeviceIp",
+            "type": "string"
+          },
+          {
+            "name": "Status",
+            "type": "string"
+          },
+          {
+            "name": "FirstSeen",
+            "type": "datetime"
+          },
+          {
+            "name": "LastSeen",
+            "type": "datetime"
+          },
+          {
+            "name": "Created",
+            "type": "datetime"
+          },
+          {
+            "name": "ResolvedTimestamp",
+            "type": "datetime"
+          },
+          {
+            "name": "Resolution",
+            "type": "string"
+          },
+          {
+            "name": "ResolutionComment",
+            "type": "string"
+          },
+          {
+            "name": "ResolutionUserUuid",
+            "type": "string"
+          },
+          {
+            "name": "RuleUuid",
+            "type": "string"
+          },
+          {
+            "name": "RuleName",
+            "type": "string"
+          },
+          {
+            "name": "RuleSeverity",
+            "type": "string"
+          },
+          {
+            "name": "RuleConfidence",
+            "type": "string"
+          },
+          {
+            "name": "RuleCategory",
+            "type": "string"
+          },
+          {
+            "name": "RulePrimaryAttackId",
+            "type": "string"
+          },
+          {
+            "name": "RuleSecondaryAttackId",
+            "type": "string"
+          },
+          {
+            "name": "RuleUrl",
+            "type": "string"
+          },
+          {
+            "name": "RuleDescription",
+            "type": "string"
+          },
+          {
+            "name": "RuleSignature",
+            "type": "string"
+          },
+          {
+            "name": "Muted",
+            "type": "bool"
+          },
+          {
+            "name": "MutedDevice",
+            "type": "bool"
+          },
+          {
+            "name": "MutedRule",
+            "type": "bool"
+          },
+          {
+            "name": "IndicatorCount",
+            "type": "int"
+          },
+          {
+            "name": "Indicators",
+            "type": "dynamic"
+          },
+          {
+            "name": "Events",
+            "type": "dynamic"
+          },
+          {
+            "name": "AccountUuid",
+            "type": "string"
+          },
+          {
+            "name": "SensorId",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  }
+]

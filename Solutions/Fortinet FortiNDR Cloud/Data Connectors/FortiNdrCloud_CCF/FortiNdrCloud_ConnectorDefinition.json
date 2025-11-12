@@ -1,0 +1,148 @@
+{
+  "name": "FortiNdrCloudConnectorDefinition",
+  "apiVersion": "2022-09-01-preview",
+  "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+  "location": "{{location}}",
+  "kind": "Customizable",
+  "properties": {
+    "connectorUiConfig": {
+      "id": "FortiNdrCloudConnectorDefinition",
+      "title": "Fortinet FortiNDR Cloud (Detections via CCF)",
+      "publisher": "Fortinet",
+      "descriptionMarkdown": "The Fortinet FortiNDR Cloud data connector provides the capability to ingest [Fortinet FortiNDR Cloud Detections](https://docs.fortinet.com/product/fortindr-cloud) data into Microsoft Sentinel using the FortiNDR Cloud REST API. This is a serverless implementation using the Codeless Connector Framework (CCF).\n\n**Note:** This connector ingests **Detections data only**. For Observation and Suricata event logs, continue using the Azure Function-based connector.",
+      "graphQueriesTableName": "FncEventsDetections_CL",
+      "graphQueries": [
+        {
+          "metricName": "Fortinet FortiNDR Cloud Detections",
+          "legend": "FncEventsDetections_CL",
+          "baseQuery": "FncEventsDetections_CL"
+        }
+      ],
+      "sampleQueries": [
+        {
+          "description": "All Fortinet FortiNDR Cloud Detections",
+          "query": "FncEventsDetections_CL\n | sort by TimeGenerated desc"
+        },
+        {
+          "description": "Active Detections by Severity",
+          "query": "FncEventsDetections_CL\n | where Status == 'active'\n | summarize Count=count() by RuleSeverity\n | sort by Count desc"
+        },
+        {
+          "description": "Top 10 Detection Rules",
+          "query": "FncEventsDetections_CL\n | summarize Count=count() by RuleName\n | top 10 by Count desc"
+        }
+      ],
+      "dataTypes": [
+        {
+          "name": "FncEventsDetections_CL",
+          "lastDataReceivedQuery": "FncEventsDetections_CL\n | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+        }
+      ],
+      "connectivityCriteria": [
+        {
+          "type": "HasDataConnectors"
+        }
+      ],
+      "availability": {
+        "status": 1,
+        "isPreview": true
+      },
+      "permissions": {
+        "resourceProvider": [
+          {
+            "provider": "Microsoft.OperationalInsights/workspaces",
+            "permissionsDisplayText": "Read and Write permissions are required.",
+            "providerDisplayName": "Workspace",
+            "scope": "Workspace",
+            "requiredPermissions": {
+              "read": true,
+              "write": true,
+              "delete": false
+            }
+          }
+        ],
+        "customs": [
+          {
+            "name": "FortiNDR Cloud API Credentials",
+            "description": "**API Token** and **Account UUID** are required. These can be obtained from your FortiNDR Cloud account management portal."
+          },
+          {
+            "name": "FortiNDR Cloud API Domain",
+            "description": "**API Domain** (default: icebrg.io) - only change if directed by Fortinet support."
+          }
+        ]
+      },
+      "instructionSteps": [
+        {
+          "title": "1. Obtain FortiNDR Cloud API Credentials",
+          "description": "Log in to your FortiNDR Cloud portal and navigate to the account management section to obtain:\n\n- **API Token**: Your authentication token\n- **Account UUID**: Your account identifier\n- **API Domain** (optional): Typically 'icebrg.io' unless you're using a custom domain",
+          "instructions": []
+        },
+        {
+          "title": "2. Configure Detection Filtering (Optional)",
+          "description": "You can configure which detections to ingest:\n\n- **Detection Status**: Choose 'active', 'resolved', or 'all' (default: all)\n- **Pull Muted**: Choose whether to include muted detections, devices, and rules (default: all)",
+          "instructions": []
+        },
+        {
+          "title": "3. Connect to FortiNDR Cloud",
+          "description": "Enter your FortiNDR Cloud credentials below and click **Connect** to start ingesting detection data.",
+          "instructions": [
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "API Token",
+                "placeholder": "Enter your FortiNDR Cloud API Token",
+                "type": "password",
+                "name": "FncApiToken"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Account UUID",
+                "placeholder": "Enter your Account UUID",
+                "type": "text",
+                "name": "FncAccountUuid"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "API Domain (default: icebrg.io)",
+                "placeholder": "icebrg.io",
+                "type": "text",
+                "name": "FncApiDomain"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Detection Status (active/resolved/all)",
+                "placeholder": "all",
+                "type": "text",
+                "name": "DetectionStatus"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Pull Muted (true/false/all)",
+                "placeholder": "all",
+                "type": "text",
+                "name": "PullMuted"
+              }
+            },
+            {
+              "type": "ConnectionToggleButton",
+              "parameters": {
+                "connectLabel": "Connect",
+                "disconnectLabel": "Disconnect",
+                "name": "connect"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
