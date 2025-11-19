@@ -35,6 +35,20 @@
       "metadata": {
         "description": "Name for the workbook"
       }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "resource group name where Microsoft Sentinel is setup"
+      }
+    },
+    "subscription": {
+      "type": "string",
+      "defaultValue": "[last(split(subscription().id, '/'))]",
+      "metadata": {
+        "description": "subscription id where Microsoft Sentinel is setup"
+      }
     }
   },
   "variables": {
@@ -58,6 +72,13 @@
     "dataConnectorTemplateSpecName1": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentId1'))))]",
     "dataConnectorVersion1": "1.0.0",
     "_dataConnectorcontentProductId1": "[concat(take(variables('_solutionId'),50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentId1'),'-', variables('dataConnectorVersion1'))))]",
+    "dataConnectorCCPVersion": "1.0.0",
+    "_dataConnectorContentIdConnectorDefinition2": "WithSecureElementsDefinition",
+    "dataConnectorTemplateNameConnectorDefinition2": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition2')))]",
+    "_dataConnectorContentIdConnections2": "WithSecureElementsDefinitionConnections",
+    "dataConnectorTemplateNameConnections2": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnections2')))]",
+    "dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]",
+    "blanks": "[replace('b', 'b', '')]",
     "_solutioncontentProductId": "[concat(take(variables('_solutionId'),50),'-','sl','-', uniqueString(concat(variables('_solutionId'),'-','Solution','-',variables('_solutionId'),'-', variables('_solutionVersion'))))]"
   },
   "resources": [
@@ -456,6 +477,689 @@
       }
     },
     {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnectorDefinition2'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+        "displayName": "WithSecure Elements (Serverless)",
+        "contentKind": "DataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition2'))]",
+              "apiVersion": "2025-09-01",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+              "location": "[parameters('workspace-location')]",
+              "kind": "Customizable",
+              "properties": {
+                "connectorUiConfig": {
+                  "id": "WithSecureElementsDefinition",
+                  "title": "WithSecure Elements (Serverless)",
+                  "publisher": "WithSecure",
+                  "descriptionMarkdown": "WithSecure Elements is the unified cloud-based cyber security platform designed to reduce risk, complexity, and inefficiency.\n\nElevate your security from your endpoints to your cloud applications. Arm yourself against every type of cyber threat, from targeted attacks to zero-day ransomware.\n\nWithSecure Elements combines powerful predictive, preventive, and responsive security capabilities - all managed and monitored through a single security center. Our modular structure and flexible pricing models give you the freedom to evolve. With our expertise and insight, you'll always be empowered - and you'll never be alone.\n\nWith Microsoft Sentinel integration, you can correlate [security events](https://connect.withsecure.com/api-reference/security-events#overview) data from the WithSecure Elements solution with data from other sources, enabling a rich overview of your entire environment and faster reaction to threats.\n\nThis serverless solution uses the Codeless Connector Platform (CCF) to poll periodically for WithSecure Elements security events.\n\nFor more information visit our website at: [https://www.withsecure.com](https://www.withsecure.com).",
+                  "graphQueriesTableName": "WsSecurityEvents_CL",
+                  "graphQueries": [
+                    {
+                      "metricName": "Total events received",
+                      "legend": "WithSecure Security Events",
+                      "baseQuery": "WsSecurityEvents_CL"
+                    }
+                  ],
+                  "sampleQueries": [
+                    {
+                      "description": "All WithSecure security events",
+                      "query": "WsSecurityEvents_CL\n| sort by TimeGenerated desc"
+                    },
+                    {
+                      "description": "High severity events",
+                      "query": "WsSecurityEvents_CL\n| where Severity == 'critical'\n| sort by TimeGenerated desc"
+                    },
+                    {
+                      "description": "Events by engine type",
+                      "query": "WsSecurityEvents_CL\n| summarize Count=count() by Engine\n| sort by Count desc"
+                    }
+                  ],
+                  "dataTypes": [
+                    {
+                      "name": "WsSecurityEvents_CL",
+                      "lastDataReceivedQuery": "WsSecurityEvents_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                    }
+                  ],
+                  "connectivityCriteria": [
+                    {
+                      "type": "HasDataConnectors"
+                    }
+                  ],
+                  "availability": {
+                    "status": 1,
+                    "isPreview": false
+                  },
+                  "permissions": {
+                    "resourceProvider": [
+                      {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "Read and Write permissions are required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                          "read": true,
+                          "write": true,
+                          "delete": false
+                        }
+                      }
+                    ],
+                    "customs": [
+                      {
+                        "name": "WithSecure Elements API credentials",
+                        "description": "Client credentials (Client ID and Client Secret) are required. [See the documentation to learn more.](https://connect.withsecure.com/getting-started/elements#getting-client-credentials)"
+                      }
+                    ]
+                  },
+                  "instructionSteps": [
+                    {
+                      "title": "1. Obtain WithSecure Elements API credentials",
+                      "description": "Follow the [user guide](https://connect.withsecure.com/getting-started/elements#getting-client-credentials) to create Elements API credentials. You will need the **Client ID** and **Client Secret**.",
+                      "instructions": []
+                    },
+                    {
+                      "title": "2. Configure the WithSecure Elements connector",
+                      "description": "Enter the required information below and click **Connect** to establish the data connection.",
+                      "instructions": [
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Base URL",
+                            "placeholder": "https://api.withsecure.com",
+                            "type": "text",
+                            "name": "BaseUrl"
+                          }
+                        },
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Client ID",
+                            "placeholder": "Enter your WithSecure Elements Client ID",
+                            "type": "text",
+                            "name": "ClientId"
+                          }
+                        },
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Client Secret",
+                            "placeholder": "Enter your WithSecure Elements Client Secret",
+                            "type": "password",
+                            "name": "ClientSecret"
+                          }
+                        },
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Engine Group (Optional)",
+                            "placeholder": "epp,edr,ecp",
+                            "type": "text",
+                            "name": "EngineGroup"
+                          }
+                        },
+                        {
+                          "type": "ConnectionToggleButton",
+                          "parameters": {
+                            "connectLabel": "Connect",
+                            "name": "connect"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition2')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition2'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+                "kind": "DataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "WithSecure"
+                },
+                "support": {
+                  "name": "WithSecure",
+                  "tier": "Partner",
+                  "link": "https://www.withsecure.com/en/support"
+                },
+                "dependencies": {
+                  "criteria": [
+                    {
+                      "version": "[variables('dataConnectorCCPVersion')]",
+                      "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+                      "kind": "ResourcesDataConnector"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "WithSecureElementsDCR",
+              "apiVersion": "2024-03-11",
+              "type": "Microsoft.Insights/dataCollectionRules",
+              "location": "[parameters('workspace-location')]",
+              "kind": "[variables('blanks')]",
+              "properties": {
+                "description": "Data collection rule for WithSecure Elements security events",
+                "streamDeclarations": {
+                  "Custom-WsSecurityEvents_CL": {
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "severity",
+                        "type": "string"
+                      },
+                      {
+                        "name": "serverTimestamp",
+                        "type": "long"
+                      },
+                      {
+                        "name": "persistenceTimestamp",
+                        "type": "long"
+                      },
+                      {
+                        "name": "message",
+                        "type": "string"
+                      },
+                      {
+                        "name": "description",
+                        "type": "string"
+                      },
+                      {
+                        "name": "engine",
+                        "type": "string"
+                      },
+                      {
+                        "name": "action",
+                        "type": "string"
+                      },
+                      {
+                        "name": "details",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "organization",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "device",
+                        "type": "dynamic"
+                      }
+                    ]
+                  }
+                },
+                "destinations": {
+                  "logAnalytics": [
+                    {
+                      "workspaceResourceId": "[variables('workspaceResourceId')]",
+                      "workspaceId": "{{workspaceId}}",
+                      "name": "la1"
+                    }
+                  ]
+                },
+                "dataFlows": [
+                  {
+                    "streams": [
+                      "Custom-WsSecurityEvents_CL"
+                    ],
+                    "destinations": [
+                      "la1"
+                    ],
+                    "outputStream": "Custom-WsSecurityEvents_CL",
+                    "transformKql": "source | extend TimeGenerated = now(), EventId = tostring(id), Severity = tostring(severity), ServerTimestamp = datetime_add('millisecond', tolong(serverTimestamp), make_datetime(1970, 1, 1)), PersistenceTimestamp = datetime_add('millisecond', tolong(persistenceTimestamp), make_datetime(1970, 1, 1)), Message = tostring(message), Description = tostring(description), Engine = tostring(engine), Action = tostring(action), Details = parse_json(tostring(details)), OrganizationId = tostring(parse_json(tostring(organization)).id), OrganizationName = tostring(parse_json(tostring(organization)).name), DeviceId = tostring(parse_json(tostring(device)).id), DeviceName = tostring(parse_json(tostring(device)).name), DeviceWinsName = tostring(parse_json(tostring(device)).winsName), DeviceClientType = tostring(parse_json(tostring(device)).clientType) | project TimeGenerated, EventId, Severity, ServerTimestamp, PersistenceTimestamp, Message, Description, Engine, Action, Details, OrganizationId, OrganizationName, DeviceId, DeviceName, DeviceWinsName, DeviceClientType"
+                  }
+                ],
+                "dataCollectionEndpointId": "[variables('dataCollectionEndpointId')]"
+              }
+            },
+            {
+              "name": "WsSecurityEvents_CL",
+              "apiVersion": "2025-07-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "WsSecurityEvents_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "EventId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Severity",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ServerTimestamp",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "PersistenceTimestamp",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "Message",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Description",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Engine",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Action",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Details",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "OrganizationId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "OrganizationName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "DeviceId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "DeviceName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "DeviceWinsName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "DeviceClientType",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentIdConnectorDefinition2'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition2'))]",
+      "apiVersion": "2025-09-01",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+      "location": "[parameters('workspace-location')]",
+      "kind": "Customizable",
+      "properties": {
+        "connectorUiConfig": {
+          "id": "WithSecureElementsDefinition",
+          "title": "WithSecure Elements (Serverless)",
+          "publisher": "WithSecure",
+          "descriptionMarkdown": "WithSecure Elements is the unified cloud-based cyber security platform designed to reduce risk, complexity, and inefficiency.\n\nElevate your security from your endpoints to your cloud applications. Arm yourself against every type of cyber threat, from targeted attacks to zero-day ransomware.\n\nWithSecure Elements combines powerful predictive, preventive, and responsive security capabilities - all managed and monitored through a single security center. Our modular structure and flexible pricing models give you the freedom to evolve. With our expertise and insight, you'll always be empowered - and you'll never be alone.\n\nWith Microsoft Sentinel integration, you can correlate [security events](https://connect.withsecure.com/api-reference/security-events#overview) data from the WithSecure Elements solution with data from other sources, enabling a rich overview of your entire environment and faster reaction to threats.\n\nThis serverless solution uses the Codeless Connector Platform (CCF) to poll periodically for WithSecure Elements security events.\n\nFor more information visit our website at: [https://www.withsecure.com](https://www.withsecure.com).",
+          "graphQueriesTableName": "WsSecurityEvents_CL",
+          "graphQueries": [
+            {
+              "metricName": "Total events received",
+              "legend": "WithSecure Security Events",
+              "baseQuery": "WsSecurityEvents_CL"
+            }
+          ],
+          "sampleQueries": [
+            {
+              "description": "All WithSecure security events",
+              "query": "WsSecurityEvents_CL\n| sort by TimeGenerated desc"
+            },
+            {
+              "description": "High severity events",
+              "query": "WsSecurityEvents_CL\n| where Severity == 'critical'\n| sort by TimeGenerated desc"
+            },
+            {
+              "description": "Events by engine type",
+              "query": "WsSecurityEvents_CL\n| summarize Count=count() by Engine\n| sort by Count desc"
+            }
+          ],
+          "dataTypes": [
+            {
+              "name": "WsSecurityEvents_CL",
+              "lastDataReceivedQuery": "WsSecurityEvents_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+            }
+          ],
+          "connectivityCriteria": [
+            {
+              "type": "HasDataConnectors"
+            }
+          ],
+          "availability": {
+            "status": 1,
+            "isPreview": false
+          },
+          "permissions": {
+            "resourceProvider": [
+              {
+                "provider": "Microsoft.OperationalInsights/workspaces",
+                "permissionsDisplayText": "Read and Write permissions are required.",
+                "providerDisplayName": "Workspace",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                  "read": true,
+                  "write": true,
+                  "delete": false
+                }
+              }
+            ],
+            "customs": [
+              {
+                "name": "WithSecure Elements API credentials",
+                "description": "Client credentials (Client ID and Client Secret) are required. [See the documentation to learn more.](https://connect.withsecure.com/getting-started/elements#getting-client-credentials)"
+              }
+            ]
+          },
+          "instructionSteps": [
+            {
+              "title": "1. Obtain WithSecure Elements API credentials",
+              "description": "Follow the [user guide](https://connect.withsecure.com/getting-started/elements#getting-client-credentials) to create Elements API credentials. You will need the **Client ID** and **Client Secret**.",
+              "instructions": []
+            },
+            {
+              "title": "2. Configure the WithSecure Elements connector",
+              "description": "Enter the required information below and click **Connect** to establish the data connection.",
+              "instructions": [
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Base URL",
+                    "placeholder": "https://api.withsecure.com",
+                    "type": "text",
+                    "name": "BaseUrl"
+                  }
+                },
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Client ID",
+                    "placeholder": "Enter your WithSecure Elements Client ID",
+                    "type": "text",
+                    "name": "ClientId"
+                  }
+                },
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Client Secret",
+                    "placeholder": "Enter your WithSecure Elements Client Secret",
+                    "type": "password",
+                    "name": "ClientSecret"
+                  }
+                },
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Engine Group (Optional)",
+                    "placeholder": "epp,edr,ecp",
+                    "type": "text",
+                    "name": "EngineGroup"
+                  }
+                },
+                {
+                  "type": "ConnectionToggleButton",
+                  "parameters": {
+                    "connectLabel": "Connect",
+                    "name": "connect"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition2')))]",
+      "apiVersion": "2022-01-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+      "properties": {
+        "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition2'))]",
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+        "kind": "DataConnector",
+        "version": "[variables('dataConnectorCCPVersion')]",
+        "source": {
+          "sourceId": "[variables('_solutionId')]",
+          "name": "[variables('_solutionName')]",
+          "kind": "Solution"
+        },
+        "author": {
+          "name": "WithSecure"
+        },
+        "support": {
+          "name": "WithSecure",
+          "tier": "Partner",
+          "link": "https://www.withsecure.com/en/support"
+        },
+        "dependencies": {
+          "criteria": [
+            {
+              "version": "[variables('dataConnectorCCPVersion')]",
+              "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+              "kind": "ResourcesDataConnector"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnections2'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+        "displayName": "WithSecure Elements (Serverless)",
+        "contentKind": "ResourcesDataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {
+            "guidValue": {
+              "defaultValue": "[[newGuid()]",
+              "type": "securestring"
+            },
+            "innerWorkspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "connectorDefinitionName": {
+              "defaultValue": "WithSecure Elements (Serverless)",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "workspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "dcrConfig": {
+              "defaultValue": {
+                "dataCollectionEndpoint": "data collection Endpoint",
+                "dataCollectionRuleImmutableId": "data collection rule immutableId"
+              },
+              "type": "object"
+            },
+            "BaseUrl": {
+              "defaultValue": "BaseUrl",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "ClientId": {
+              "defaultValue": "ClientId",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "ClientSecret": {
+              "defaultValue": "ClientSecret",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "EngineGroup": {
+              "defaultValue": "EngineGroup",
+              "type": "securestring",
+              "minLength": 1
+            }
+          },
+          "variables": {
+            "_dataConnectorContentIdConnections2": "[variables('_dataConnectorContentIdConnections2')]"
+          },
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnections2')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectors', variables('_dataConnectorContentIdConnections2'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+                "kind": "ResourcesDataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "WithSecure"
+                },
+                "support": {
+                  "name": "WithSecure",
+                  "tier": "Partner",
+                  "link": "https://www.withsecure.com/en/support"
+                }
+              }
+            },
+            {
+              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'WithSecureElementsPoller', parameters('guidValue'))]",
+              "apiVersion": "2025-09-01",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "RestApiPoller",
+              "properties": {
+                "connectorDefinitionName": "WithSecureElementsDefinition",
+                "dataType": "WsSecurityEvents_CL",
+                "auth": {
+                  "type": "OAuth2",
+                  "GrantType": "client_credentials",
+                  "ClientId": "[[parameters('ClientId')]",
+                  "ClientSecret": "[[parameters('ClientSecret')]",
+                  "TokenEndpoint": "[[concat(parameters('BaseUrl'),'/as/token.oauth2')]",
+                  "TokenEndpointHeaders": {
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+                    "Accept": "application/json"
+                  },
+                  "TokenEndpointQueryParameters": {
+                    "grant_type": "client_credentials",
+                    "scope": "connect.api.read"
+                  },
+                  "IsClientSecretInHeader": false,
+                  "IsClientIdInHeader": false,
+                  "AuthorizationHeaderName": "Authorization",
+                  "authorizationHeaderValue": "Bearer "
+                },
+                "request": {
+                  "apiEndpoint": "[[concat(parameters('BaseUrl'),'/security-events/v1/security-events')]",
+                  "httpMethod": "POST",
+                  "queryTimeFormat": "UnixTimestampMilliseconds",
+                  "startTimeAttributeName": "persistenceTimestampStart",
+                  "endTimeAttributeName": "persistenceTimestampEnd",
+                  "queryWindowInMin": 1,
+                  "queryParameters": {
+                    "limit": "100",
+                    "order": "asc",
+                    "engineGroup": "[[parameters('EngineGroup')]",
+                    "exclusiveStart": "true"
+                  },
+                  "headers": {
+                    "Accept": "application/json",
+                    "User-Agent": "sentinel-connector"
+                  },
+                  "isPostPayloadJson": false,
+                  "rateLimitQps": 1,
+                  "retryCount": 3,
+                  "timeoutInSeconds": 30
+                },
+                "response": {
+                  "eventsJsonPaths": [
+                    "$.items"
+                  ],
+                  "format": "json"
+                },
+                "paging": {
+                  "pagingType": "NextPageToken",
+                  "nextPageTokenJsonPath": "$.nextAnchor",
+                  "nextPageParaName": "anchor",
+                  "pageSize": 100,
+                  "pageSizeParameterName": "limit"
+                },
+                "dcrConfig": {
+                  "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
+                  "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]",
+                  "streamName": "Custom-WsSecurityEvents_CL"
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','rdc','-', uniqueString(concat(variables('_solutionId'),'-','ResourcesDataConnector','-',variables('_dataConnectorContentIdConnections2'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
       "type": "Microsoft.OperationalInsights/workspaces/providers/contentPackages",
       "apiVersion": "2023-04-01-preview",
       "location": "[parameters('workspace-location')]",
@@ -465,7 +1169,7 @@
         "contentSchemaVersion": "3.0.0",
         "displayName": "WithSecureElementsViaFunction",
         "publisherDisplayName": "WithSecure",
-        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/WithSecureElementsViaFunction/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>WithSecure Elements is the unified cloud-based cyber security platform designed to reduce risk, complexity, and inefficiency.\nElevate your security from your endpoints to your cloud applications. Arm yourself against every type of cyber threat, from targeted attacks to zero-day ransomware.\nWithSecure Elements combines powerful predictive, preventive, and responsive security capabilities - all managed and monitored through a single security center. Our modular structure and flexible pricing models give you the freedom to evolve. With our expertise and insight, you'll always be empowered - and you'll never be alone.\nWith Microsoft Sentinel integration, you can correlate <a href=\"https://connect.withsecure.com/api-reference/security-events#overview\">security events</a> data from the WithSecure Elements solution with data from other sources, enabling a rich overview of your entire environment and faster reaction to threats.\nWith this solution Azure Function is deployed to your tenant, polling periodically for the WithSecure Elements security events.\nFor more information visit our website at: <a href=\"https://www.withsecure.com\">https://www.withsecure.com</a>.</p>\n<p><strong>Data Connectors:</strong> 1, <strong>Workbooks:</strong> 1</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
+        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/WithSecureElementsViaFunction/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>WithSecure Elements is the unified cloud-based cyber security platform designed to reduce risk, complexity, and inefficiency.\nElevate your security from your endpoints to your cloud applications. Arm yourself against every type of cyber threat, from targeted attacks to zero-day ransomware.\nWithSecure Elements combines powerful predictive, preventive, and responsive security capabilities - all managed and monitored through a single security center. Our modular structure and flexible pricing models give you the freedom to evolve. With our expertise and insight, you'll always be empowered - and you'll never be alone.\nWith Microsoft Sentinel integration, you can correlate <a href=\"https://connect.withsecure.com/api-reference/security-events#overview\">security events</a> data from the WithSecure Elements solution with data from other sources, enabling a rich overview of your entire environment and faster reaction to threats.\nWith this solution Azure Function is deployed to your tenant, polling periodically for the WithSecure Elements security events.\nFor more information visit our website at: <a href=\"https://www.withsecure.com\">https://www.withsecure.com</a>.</p>\n<p><strong>Data Connectors:</strong> 2, <strong>Workbooks:</strong> 1</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
         "contentKind": "Solution",
         "contentProductId": "[variables('_solutioncontentProductId')]",
         "id": "[variables('_solutioncontentProductId')]",
@@ -497,6 +1201,11 @@
               "kind": "DataConnector",
               "contentId": "[variables('_dataConnectorContentId1')]",
               "version": "[variables('dataConnectorVersion1')]"
+            },
+            {
+              "kind": "DataConnector",
+              "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+              "version": "[variables('dataConnectorCCPVersion')]"
             }
           ]
         },
