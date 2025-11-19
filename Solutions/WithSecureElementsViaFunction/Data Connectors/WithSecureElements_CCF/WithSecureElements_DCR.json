@@ -1,0 +1,80 @@
+{
+  "name": "WithSecureElementsDCR",
+  "type": "Microsoft.Insights/dataCollectionRules",
+  "apiVersion": "2021-09-01-preview",
+  "location": "{{location}}",
+  "properties": {
+    "description": "Data collection rule for WithSecure Elements security events",
+    "streamDeclarations": {
+      "Custom-WsSecurityEvents_CL": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "severity",
+            "type": "string"
+          },
+          {
+            "name": "serverTimestamp",
+            "type": "long"
+          },
+          {
+            "name": "persistenceTimestamp",
+            "type": "long"
+          },
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "engine",
+            "type": "string"
+          },
+          {
+            "name": "action",
+            "type": "string"
+          },
+          {
+            "name": "details",
+            "type": "dynamic"
+          },
+          {
+            "name": "organization",
+            "type": "dynamic"
+          },
+          {
+            "name": "device",
+            "type": "dynamic"
+          }
+        ]
+      }
+    },
+    "destinations": {
+      "logAnalytics": [
+        {
+          "workspaceResourceId": "{{workspaceResourceId}}",
+          "workspaceId": "{{workspaceId}}",
+          "name": "la1"
+        }
+      ]
+    },
+    "dataFlows": [
+      {
+        "streams": [
+          "Custom-WsSecurityEvents_CL"
+        ],
+        "destinations": [
+          "la1"
+        ],
+        "outputStream": "Custom-WsSecurityEvents_CL",
+        "transformKql": "source | extend TimeGenerated = now(), EventId = tostring(id), Severity = tostring(severity), ServerTimestamp = datetime_add('millisecond', tolong(serverTimestamp), make_datetime(1970, 1, 1)), PersistenceTimestamp = datetime_add('millisecond', tolong(persistenceTimestamp), make_datetime(1970, 1, 1)), Message = tostring(message), Description = tostring(description), Engine = tostring(engine), Action = tostring(action), Details = parse_json(tostring(details)), OrganizationId = tostring(parse_json(tostring(organization)).id), OrganizationName = tostring(parse_json(tostring(organization)).name), DeviceId = tostring(parse_json(tostring(device)).id), DeviceName = tostring(parse_json(tostring(device)).name), DeviceWinsName = tostring(parse_json(tostring(device)).winsName), DeviceClientType = tostring(parse_json(tostring(device)).clientType) | project TimeGenerated, EventId, Severity, ServerTimestamp, PersistenceTimestamp, Message, Description, Engine, Action, Details, OrganizationId, OrganizationName, DeviceId, DeviceName, DeviceWinsName, DeviceClientType"
+      }
+    ]
+  }
+}

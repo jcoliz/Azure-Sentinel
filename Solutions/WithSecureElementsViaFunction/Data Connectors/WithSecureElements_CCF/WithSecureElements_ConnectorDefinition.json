@@ -1,0 +1,129 @@
+{
+  "name": "WithSecureElementsDefinition",
+  "apiVersion": "2022-09-01-preview",
+  "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+  "location": "{{location}}",
+  "kind": "Customizable",
+  "properties": {
+    "connectorUiConfig": {
+      "id": "WithSecureElementsDefinition",
+      "title": "WithSecure Elements (Serverless)",
+      "publisher": "WithSecure",
+      "descriptionMarkdown": "WithSecure Elements is the unified cloud-based cyber security platform designed to reduce risk, complexity, and inefficiency.\n\nElevate your security from your endpoints to your cloud applications. Arm yourself against every type of cyber threat, from targeted attacks to zero-day ransomware.\n\nWithSecure Elements combines powerful predictive, preventive, and responsive security capabilities - all managed and monitored through a single security center. Our modular structure and flexible pricing models give you the freedom to evolve. With our expertise and insight, you'll always be empowered - and you'll never be alone.\n\nWith Microsoft Sentinel integration, you can correlate [security events](https://connect.withsecure.com/api-reference/security-events#overview) data from the WithSecure Elements solution with data from other sources, enabling a rich overview of your entire environment and faster reaction to threats.\n\nThis serverless solution uses the Codeless Connector Platform (CCF) to poll periodically for WithSecure Elements security events.\n\nFor more information visit our website at: [https://www.withsecure.com](https://www.withsecure.com).",
+      "graphQueriesTableName": "WsSecurityEvents_CL",
+      "graphQueries": [
+        {
+          "metricName": "Total events received",
+          "legend": "WithSecure Security Events",
+          "baseQuery": "WsSecurityEvents_CL"
+        }
+      ],
+      "sampleQueries": [
+        {
+          "description": "All WithSecure security events",
+          "query": "WsSecurityEvents_CL\n| sort by TimeGenerated desc"
+        },
+        {
+          "description": "High severity events",
+          "query": "WsSecurityEvents_CL\n| where Severity == 'critical'\n| sort by TimeGenerated desc"
+        },
+        {
+          "description": "Events by engine type",
+          "query": "WsSecurityEvents_CL\n| summarize Count=count() by Engine\n| sort by Count desc"
+        }
+      ],
+      "dataTypes": [
+        {
+          "name": "WsSecurityEvents_CL",
+          "lastDataReceivedQuery": "WsSecurityEvents_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+        }
+      ],
+      "connectivityCriteria": [
+        {
+          "type": "HasDataConnectors"
+        }
+      ],
+      "availability": {
+        "status": 1,
+        "isPreview": false
+      },
+      "permissions": {
+        "resourceProvider": [
+          {
+            "provider": "Microsoft.OperationalInsights/workspaces",
+            "permissionsDisplayText": "Read and Write permissions are required.",
+            "providerDisplayName": "Workspace",
+            "scope": "Workspace",
+            "requiredPermissions": {
+              "read": true,
+              "write": true,
+              "delete": false
+            }
+          }
+        ],
+        "customs": [
+          {
+            "name": "WithSecure Elements API credentials",
+            "description": "Client credentials (Client ID and Client Secret) are required. [See the documentation to learn more.](https://connect.withsecure.com/getting-started/elements#getting-client-credentials)"
+          }
+        ]
+      },
+      "instructionSteps": [
+        {
+          "title": "1. Obtain WithSecure Elements API credentials",
+          "description": "Follow the [user guide](https://connect.withsecure.com/getting-started/elements#getting-client-credentials) to create Elements API credentials. You will need the **Client ID** and **Client Secret**.",
+          "instructions": []
+        },
+        {
+          "title": "2. Configure the WithSecure Elements connector",
+          "description": "Enter the required information below and click **Connect** to establish the data connection.",
+          "instructions": [
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Base URL",
+                "placeholder": "https://api.withsecure.com",
+                "type": "text",
+                "name": "BaseUrl"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Client ID",
+                "placeholder": "Enter your WithSecure Elements Client ID",
+                "type": "text",
+                "name": "ClientId"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Client Secret",
+                "placeholder": "Enter your WithSecure Elements Client Secret",
+                "type": "password",
+                "name": "ClientSecret"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Engine Group (Optional)",
+                "placeholder": "epp,edr,ecp",
+                "type": "text",
+                "name": "EngineGroup"
+              }
+            },
+            {
+              "type": "ConnectionToggleButton",
+              "parameters": {
+                "connectLabel": "Connect",
+                "name": "connect"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

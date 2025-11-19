@@ -1,0 +1,72 @@
+[
+  {
+    "name": "WithSecureElementsPoller",
+    "type": "Microsoft.SecurityInsights/dataConnectors",
+    "apiVersion": "2023-02-01-preview",
+    "location": "{{location}}",
+    "kind": "RestApiPoller",
+    "properties": {
+      "connectorDefinitionName": "WithSecureElementsDefinition",
+      "dataType": "WsSecurityEvents_CL",
+      "auth": {
+        "type": "OAuth2",
+        "GrantType": "client_credentials",
+        "ClientId": "{{ClientId}}",
+        "ClientSecret": "{{ClientSecret}}",
+        "TokenEndpoint": "{{BaseUrl}}/as/token.oauth2",
+        "TokenEndpointHeaders": {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "Accept": "application/json"
+        },
+        "TokenEndpointQueryParameters": {
+          "grant_type": "client_credentials",
+          "scope": "connect.api.read"
+        },
+        "IsClientSecretInHeader": false,
+        "IsClientIdInHeader": false,
+        "AuthorizationHeaderName": "Authorization",
+        "authorizationHeaderValue": "Bearer "
+      },
+      "request": {
+        "apiEndpoint": "{{BaseUrl}}/security-events/v1/security-events",
+        "httpMethod": "POST",
+        "queryTimeFormat": "UnixTimestampMilliseconds",
+        "startTimeAttributeName": "persistenceTimestampStart",
+        "endTimeAttributeName": "persistenceTimestampEnd",
+        "queryWindowInMin": 1,
+        "queryParameters": {
+          "limit": "100",
+          "order": "asc",
+          "engineGroup": "{{EngineGroup}}",
+          "exclusiveStart": "true"
+        },
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "sentinel-connector"
+        },
+        "isPostPayloadJson": false,
+        "rateLimitQps": 1,
+        "retryCount": 3,
+        "timeoutInSeconds": 30
+      },
+      "response": {
+        "eventsJsonPaths": [
+          "$.items"
+        ],
+        "format": "json"
+      },
+      "paging": {
+        "pagingType": "NextPageToken",
+        "nextPageTokenJsonPath": "$.nextAnchor",
+        "nextPageParaName": "anchor",
+        "pageSize": 100,
+        "pageSizeParameterName": "limit"
+      },
+      "dcrConfig": {
+        "dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+        "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}",
+        "streamName": "Custom-WsSecurityEvents_CL"
+      }
+    }
+  }
+]

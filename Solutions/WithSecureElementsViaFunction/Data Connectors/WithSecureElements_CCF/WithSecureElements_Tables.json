@@ -1,0 +1,79 @@
+[
+  {
+    "name": "WsSecurityEvents_CL",
+    "type": "Microsoft.OperationalInsights/workspaces/tables",
+    "apiVersion": "2021-12-01-preview",
+    "location": "{{location}}",
+    "properties": {
+      "schema": {
+        "name": "WsSecurityEvents_CL",
+        "columns": [
+          {
+            "name": "TimeGenerated",
+            "type": "datetime"
+          },
+          {
+            "name": "EventId",
+            "type": "string"
+          },
+          {
+            "name": "Severity",
+            "type": "string"
+          },
+          {
+            "name": "ServerTimestamp",
+            "type": "datetime"
+          },
+          {
+            "name": "PersistenceTimestamp",
+            "type": "datetime"
+          },
+          {
+            "name": "Message",
+            "type": "string"
+          },
+          {
+            "name": "Description",
+            "type": "string"
+          },
+          {
+            "name": "Engine",
+            "type": "string"
+          },
+          {
+            "name": "Action",
+            "type": "string"
+          },
+          {
+            "name": "Details",
+            "type": "dynamic"
+          },
+          {
+            "name": "OrganizationId",
+            "type": "string"
+          },
+          {
+            "name": "OrganizationName",
+            "type": "string"
+          },
+          {
+            "name": "DeviceId",
+            "type": "string"
+          },
+          {
+            "name": "DeviceName",
+            "type": "string"
+          },
+          {
+            "name": "DeviceWinsName",
+            "type": "string"
+          },
+          {
+            "name": "DeviceClientType",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  }
+]
