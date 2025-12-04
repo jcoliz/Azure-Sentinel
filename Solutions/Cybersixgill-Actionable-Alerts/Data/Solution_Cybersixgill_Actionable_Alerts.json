@@ -12,7 +12,8 @@
         "Playbooks/DeleteCybersixgillAlert/azuredeploy.json"
     ],
     "Data Connectors": [
-        "Data Connectors/Cybersixgill_FunctionApp.json"
+        "Data Connectors/Cybersixgill_FunctionApp.json",
+        "Data Connectors/Cybersixgill-Actionable-Alerts_CCF/CybersixgillActionableAlerts_ConnectorDefinition.json"
     ],
     "Hunting Queries": [
         "Hunting Queries/ActionableAlerts.yaml"

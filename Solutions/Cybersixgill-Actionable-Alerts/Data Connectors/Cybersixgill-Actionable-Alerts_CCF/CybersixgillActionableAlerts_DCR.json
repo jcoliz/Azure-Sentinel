@@ -1,0 +1,135 @@
+{
+  "name": "CybersixgillActionableAlertsDCR",
+  "type": "Microsoft.Insights/dataCollectionRules",
+  "apiVersion": "2021-09-01-preview",
+  "location": "{{location}}",
+  "properties": {
+    "streamDeclarations": {
+      "Custom-CybersixgillActionableAlerts_CL": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "alert_name",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "type": "string"
+          },
+          {
+            "name": "content_type",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "date",
+            "type": "string"
+          },
+          {
+            "name": "read",
+            "type": "boolean"
+          },
+          {
+            "name": "site",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "dynamic"
+          },
+          {
+            "name": "threat_level",
+            "type": "string"
+          },
+          {
+            "name": "threats",
+            "type": "dynamic"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "type": "string"
+          },
+          {
+            "name": "update_time",
+            "type": "string"
+          },
+          {
+            "name": "additional_info",
+            "type": "dynamic"
+          },
+          {
+            "name": "es_id",
+            "type": "string"
+          },
+          {
+            "name": "es_item",
+            "type": "dynamic"
+          },
+          {
+            "name": "lang",
+            "type": "string"
+          },
+          {
+            "name": "langcode",
+            "type": "string"
+          },
+          {
+            "name": "recommendations",
+            "type": "dynamic"
+          },
+          {
+            "name": "severity",
+            "type": "int"
+          },
+          {
+            "name": "assessment",
+            "type": "string"
+          },
+          {
+            "name": "summary",
+            "type": "string"
+          },
+          {
+            "name": "matched_assets",
+            "type": "dynamic"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "destinations": {
+      "logAnalytics": [
+        {
+          "workspaceResourceId": "{{workspaceResourceId}}",
+          "workspaceId": "{{workspaceId}}",
+          "name": "cybersixgillWorkspace"
+        }
+      ]
+    },
+    "dataFlows": [
+      {
+        "streams": [
+          "Custom-CybersixgillActionableAlerts_CL"
+        ],
+        "destinations": [
+          "cybersixgillWorkspace"
+        ],
+        "outputStream": "Custom-CybersixgillActionableAlerts_CL",
+        "transformKql": "source | extend TimeGenerated = now(), AlertId = tostring(id), AlertName = tostring(alert_name), Category = tostring(category), ContentType = tostring(content_type), Description = tostring(description), AlertDate = todatetime(date), ReadStatus = tobool(read), Site = tostring(site), StatusName = tostring(status.name), ThreatLevel = tostring(threat_level), Threats = threats, Title = tostring(title), UserId = tostring(user_id), UpdateTime = todatetime(update_time), AdditionalInfo = additional_info, EsId = tostring(es_id), EsItem = es_item, Lang = tostring(lang), LangCode = tostring(langcode), Recommendations = recommendations, Severity = toint(severity), Assessment = tostring(assessment), Summary = tostring(summary), MatchedAssets = matched_assets, Content = tostring(content), ThreatActor = tostring(columnifexists('threat_actor', '')), ThreatSource = tostring(columnifexists('threat_source', '')), PortalUrl = tostring(columnifexists('portal_url', '')), ActorUrl = tostring(columnifexists('actor_url_with_context', '')), CveId = tostring(columnifexists('cve', '')), CveUrl = tostring(columnifexists('cve_url', '')), CveCvss31Score = todouble(columnifexists('cybersixgillcvss31', -1)), CveCvss20Score = todouble(columnifexists('cybersixgillcvss20', -1)), CveDveScore = todouble(columnifexists('cybersixgilldvescore', -1)), AlertAttributes = tostring(columnifexists('alert_attributes', '')), SubAlertsCount = toint(columnifexists('sub_alerts_count', 0)), OrganizationName = tostring(columnifexists('organization_name', '')) | project TimeGenerated, AlertId, AlertName, Category, ContentType, Description, AlertDate, ReadStatus, Site, StatusName, ThreatLevel, Threats, Title, UserId, UpdateTime, AdditionalInfo, EsId, EsItem, Lang, LangCode, Recommendations, Severity, Assessment, Summary, MatchedAssets, SubAlertsCount, OrganizationName, Content, ThreatActor, ThreatSource, PortalUrl, ActorUrl, CveId, CveUrl, CveCvss31Score, CveCvss20Score, CveDveScore, AlertAttributes"
+      }
+    ]
+  }
+}

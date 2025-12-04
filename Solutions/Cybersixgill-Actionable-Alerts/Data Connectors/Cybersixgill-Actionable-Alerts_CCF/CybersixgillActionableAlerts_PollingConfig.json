@@ -1,0 +1,95 @@
+[
+  {
+    "name": "CybersixgillActionableAlertsPoller",
+    "apiVersion": "2023-01-01-preview",
+    "type": "Microsoft.SecurityInsights/dataConnectors",
+    "location": "{{location}}",
+    "kind": "RestApiPoller",
+    "properties": {
+      "connectorDefinitionName": "CybersixgillActionableAlertsDefinition",
+      "dataType": "CybersixgillActionableAlerts_CL",
+      "dcrConfig": {
+        "dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+        "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}",
+        "streamName": "Custom-CybersixgillActionableAlerts_CL"
+      },
+      "auth": {
+        "type": "OAuth2",
+        "GrantType": "client_credentials",
+        "ClientId": "{{ClientId}}",
+        "ClientSecret": "{{ClientSecret}}",
+        "TokenEndpoint": "https://api.cybersixgill.com/auth/token",
+        "TokenEndpointHeaders": {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "TokenEndpointQueryParameters": {}
+      },
+      "request": {
+        "apiEndpoint": "https://api.cybersixgill.com/alerts/actionable-alert",
+        "httpMethod": "GET",
+        "queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+        "startTimeAttributeName": "from_date",
+        "endTimeAttributeName": "to_date",
+        "queryParameters": {
+          "fetch_size": "5",
+          "offset": "0",
+          "sort_order": "asc",
+          "organization_id": "{{OrganizationId}}"
+        },
+        "queryWindowInMin": 1440,
+        "rateLimitQPS": 1,
+        "retryCount": 3,
+        "timeoutInSeconds": 60,
+        "headers": {
+          "X-Channel-Id": "cea9a52effad4bc5e905a5a653f5cf9b"
+        }
+      },
+      "paging": {
+        "pagingType": "Offset",
+        "offsetParaName": "offset",
+        "pageSizeParaName": "fetch_size",
+        "pageSize": 5
+      },
+      "response": {
+        "eventsJsonPaths": [
+          "$"
+        ],
+        "format": "json"
+      },
+      "stepInfo": {
+        "stepType": "Nested",
+        "nextSteps": [
+          {
+            "stepId": "fetchAlertDetails",
+            "stepPlaceholdersParsingKql": "source | project id=tostring(id)"
+          }
+        ]
+      },
+      "stepCollectorConfigs": {
+        "fetchAlertDetails": {
+          "shouldJoinNestedData": true,
+          "joinedDataStepName": "AlertDetails",
+          "request": {
+            "apiEndpoint": "https://api.cybersixgill.com/alerts/actionable_alert/$id$",
+            "httpMethod": "GET",
+            "headers": {
+              "X-Channel-Id": "cea9a52effad4bc5e905a5a653f5cf9b"
+            },
+            "queryParameters": {
+              "organization_id": "{{OrganizationId}}"
+            },
+            "rateLimitQPS": 1,
+            "retryCount": 3,
+            "timeoutInSeconds": 60
+          },
+          "response": {
+            "eventsJsonPaths": [
+              "$"
+            ],
+            "format": "json"
+          }
+        }
+      }
+    }
+  }
+]

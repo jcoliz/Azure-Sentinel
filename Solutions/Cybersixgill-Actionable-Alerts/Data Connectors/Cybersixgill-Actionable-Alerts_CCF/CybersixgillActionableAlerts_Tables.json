@@ -1,0 +1,167 @@
+[
+  {
+    "name": "CybersixgillActionableAlerts_CL",
+    "type": "Microsoft.OperationalInsights/workspaces/tables",
+    "apiVersion": "2021-12-01-preview",
+    "location": "{{location}}",
+    "properties": {
+      "schema": {
+        "name": "CybersixgillActionableAlerts_CL",
+        "columns": [
+          {
+            "name": "TimeGenerated",
+            "type": "datetime"
+          },
+          {
+            "name": "AlertId",
+            "type": "string"
+          },
+          {
+            "name": "AlertName",
+            "type": "string"
+          },
+          {
+            "name": "Category",
+            "type": "string"
+          },
+          {
+            "name": "ContentType",
+            "type": "string"
+          },
+          {
+            "name": "Description",
+            "type": "string"
+          },
+          {
+            "name": "AlertDate",
+            "type": "datetime"
+          },
+          {
+            "name": "ReadStatus",
+            "type": "bool"
+          },
+          {
+            "name": "Site",
+            "type": "string"
+          },
+          {
+            "name": "StatusName",
+            "type": "string"
+          },
+          {
+            "name": "ThreatLevel",
+            "type": "string"
+          },
+          {
+            "name": "Threats",
+            "type": "dynamic"
+          },
+          {
+            "name": "Title",
+            "type": "string"
+          },
+          {
+            "name": "UserId",
+            "type": "string"
+          },
+          {
+            "name": "UpdateTime",
+            "type": "datetime"
+          },
+          {
+            "name": "AdditionalInfo",
+            "type": "dynamic"
+          },
+          {
+            "name": "EsId",
+            "type": "string"
+          },
+          {
+            "name": "EsItem",
+            "type": "dynamic"
+          },
+          {
+            "name": "Lang",
+            "type": "string"
+          },
+          {
+            "name": "LangCode",
+            "type": "string"
+          },
+          {
+            "name": "Recommendations",
+            "type": "dynamic"
+          },
+          {
+            "name": "Severity",
+            "type": "int"
+          },
+          {
+            "name": "Assessment",
+            "type": "string"
+          },
+          {
+            "name": "Summary",
+            "type": "string"
+          },
+          {
+            "name": "MatchedAssets",
+            "type": "dynamic"
+          },
+          {
+            "name": "SubAlertsCount",
+            "type": "int"
+          },
+          {
+            "name": "OrganizationName",
+            "type": "string"
+          },
+          {
+            "name": "Content",
+            "type": "string"
+          },
+          {
+            "name": "ThreatActor",
+            "type": "string"
+          },
+          {
+            "name": "ThreatSource",
+            "type": "string"
+          },
+          {
+            "name": "PortalUrl",
+            "type": "string"
+          },
+          {
+            "name": "ActorUrl",
+            "type": "string"
+          },
+          {
+            "name": "CveId",
+            "type": "string"
+          },
+          {
+            "name": "CveUrl",
+            "type": "string"
+          },
+          {
+            "name": "CveCvss31Score",
+            "type": "real"
+          },
+          {
+            "name": "CveCvss20Score",
+            "type": "real"
+          },
+          {
+            "name": "CveDveScore",
+            "type": "real"
+          },
+          {
+            "name": "AlertAttributes",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  }
+]

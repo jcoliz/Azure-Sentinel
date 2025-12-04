@@ -1,0 +1,130 @@
+{
+  "name": "CybersixgillActionableAlertsDefinition",
+  "apiVersion": "2022-09-01-preview",
+  "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+  "location": "{{location}}",
+  "kind": "Customizable",
+  "properties": {
+    "connectorUiConfig": {
+      "id": "CybersixgillActionableAlertsDefinition",
+      "title": "Cybersixgill Actionable Alerts (Serverless)",
+      "publisher": "Cybersixgill",
+      "descriptionMarkdown": "The Cybersixgill Actionable Alerts data connector provides the capability to ingest Cybersixgill threat intelligence alerts into Microsoft Sentinel using the REST API. The connector provides visibility into actionable security alerts from the dark web and other underground sources, enabling security teams to respond to emerging threats.",
+      "graphQueriesTableName": "CybersixgillActionableAlerts_CL",
+      "graphQueries": [
+        {
+          "metricName": "Total Actionable Alerts",
+          "legend": "CybersixgillActionableAlerts_CL",
+          "baseQuery": "CybersixgillActionableAlerts_CL"
+        }
+      ],
+      "sampleQueries": [
+        {
+          "description": "All Cybersixgill Actionable Alerts",
+          "query": "CybersixgillActionableAlerts_CL\n| sort by TimeGenerated desc"
+        },
+        {
+          "description": "High Severity Imminent Threats",
+          "query": "CybersixgillActionableAlerts_CL\n| where ThreatLevel == 'imminent'\n| sort by TimeGenerated desc"
+        },
+        {
+          "description": "Alerts by Threat Type",
+          "query": "CybersixgillActionableAlerts_CL\n| mv-expand Threats\n| summarize Count=count() by tostring(Threats)\n| sort by Count desc"
+        },
+        {
+          "description": "CVE-Related Alerts",
+          "query": "CybersixgillActionableAlerts_CL\n| where isnotempty(CveId)\n| project TimeGenerated, AlertName, CveId, CveDveScore, ThreatLevel\n| sort by TimeGenerated desc"
+        }
+      ],
+      "dataTypes": [
+        {
+          "name": "CybersixgillActionableAlerts_CL",
+          "lastDataReceivedQuery": "CybersixgillActionableAlerts_CL\n| where TimeGenerated > ago(7d)\n| summarize Time=max(TimeGenerated)\n| where isnotempty(Time)"
+        }
+      ],
+      "connectivityCriteria": [
+        {
+          "type": "HasDataConnectors"
+        }
+      ],
+      "permissions": {
+        "resourceProvider": [
+          {
+            "provider": "Microsoft.OperationalInsights/workspaces",
+            "permissionsDisplayText": "Read and Write permissions are required.",
+            "providerDisplayName": "Workspace",
+            "scope": "Workspace",
+            "requiredPermissions": {
+              "read": true,
+              "write": true,
+              "delete": false
+            }
+          },
+          {
+            "provider": "Microsoft.OperationalInsights/workspaces/sharedKeys",
+            "permissionsDisplayText": "Read permissions to shared keys are required.",
+            "providerDisplayName": "Keys",
+            "scope": "Workspace",
+            "requiredPermissions": {
+              "action": true
+            }
+          }
+        ],
+        "customs": [
+          {
+            "name": "Cybersixgill API Credentials",
+            "description": "A Cybersixgill API Client ID and Client Secret are required. [See the documentation to learn more about Cybersixgill API](https://onboarding.cybersixgill.com/documents/CyberSixgill%20API%20User%20Guide.pdf)."
+          }
+        ]
+      },
+      "instructionSteps": [
+        {
+          "title": "1. Get Cybersixgill API Credentials",
+          "description": "To obtain your Cybersixgill API credentials:\n\n1. Navigate to the [Cybersixgill Developer Portal](https://developer.cybersixgill.com)\n2. Sign in with your Cybersixgill credentials\n3. Click **GENERATE API CLIENT AND SECRET**\n4. Save the Client ID and Client Secret for use in the next step",
+          "instructions": []
+        },
+        {
+          "title": "2. Configure the Cybersixgill Actionable Alerts connector",
+          "description": "Enter your Cybersixgill API credentials and optional organization ID below, then click **Connect** to start ingesting actionable alerts into Microsoft Sentinel.",
+          "instructions": [
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Client ID",
+                "placeholder": "Enter your Cybersixgill API Client ID",
+                "type": "text",
+                "name": "ClientId"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Client Secret",
+                "placeholder": "Enter your Cybersixgill API Client Secret",
+                "type": "password",
+                "name": "ClientSecret"
+              }
+            },
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "Organization ID (Optional)",
+                "placeholder": "Enter your Organization ID for multi-tenant deployments",
+                "type": "text",
+                "name": "OrganizationId"
+              }
+            },
+            {
+              "type": "ConnectionToggleButton",
+              "parameters": {
+                "connectLabel": "Connect",
+                "disconnectLabel": "Disconnect",
+                "name": "connect"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
