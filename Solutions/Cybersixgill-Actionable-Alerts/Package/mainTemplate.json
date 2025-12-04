@@ -43,11 +43,25 @@
       "metadata": {
         "description": "Name for the workbook"
       }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "resource group name where Microsoft Sentinel is setup"
+      }
+    },
+    "subscription": {
+      "type": "string",
+      "defaultValue": "[last(split(subscription().id, '/'))]",
+      "metadata": {
+        "description": "subscription id where Microsoft Sentinel is setup"
+      }
     }
   },
   "variables": {
     "_solutionName": "Cybersixgill-Actionable-Alerts",
-    "_solutionVersion": "3.0.1",
+    "_solutionVersion": "3.0.2",
     "solutionId": "cybersixgill1657701397011.azure-sentinel-cybersixgill-actionable-alerts",
     "_solutionId": "[variables('solutionId')]",
     "workbookVersion1": "1.0.0",
@@ -89,6 +103,12 @@
     "dataConnectorTemplateSpecName1": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentId1'))))]",
     "dataConnectorVersion1": "1.0.0",
     "_dataConnectorcontentProductId1": "[concat(take(variables('_solutionId'),50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentId1'),'-', variables('dataConnectorVersion1'))))]",
+    "dataConnectorCCPVersion": "1.0.0",
+    "_dataConnectorContentIdConnectorDefinition2": "CybersixgillActionableAlertsDefinition",
+    "dataConnectorTemplateNameConnectorDefinition2": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition2')))]",
+    "_dataConnectorContentIdConnections2": "CybersixgillActionableAlertsDefinitionConnections",
+    "dataConnectorTemplateNameConnections2": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnections2')))]",
+    "dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]",
     "huntingQueryObject1": {
       "huntingQueryVersion1": "1.0.0",
       "_huntingQuerycontentId1": "532133dd-a8ed-4062-bf0d-f04dc97bb71a",
@@ -106,7 +126,7 @@
         "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
       ],
       "properties": {
-        "description": "ActionableAlertsList Workbook with template version 3.0.1",
+        "description": "ActionableAlertsList Workbook with template version 3.0.2",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('workbookVersion1')]",
@@ -124,7 +144,7 @@
               },
               "properties": {
                 "displayName": "[parameters('workbook1-name')]",
-                "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"f7f8867d-6fcd-41c3-a908-12de727e6f35\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"date\",\"label\":\"Date\",\"type\":4,\"isGlobal\":true,\"value\":{\"durationMs\":2592000000},\"typeSettings\":{\"selectableValues\":[{\"durationMs\":86400000},{\"durationMs\":604800000},{\"durationMs\":2592000000},{\"durationMs\":5184000000},{\"durationMs\":7776000000}],\"allowCustom\":true},\"timeContext\":{\"durationMs\":86400000}},{\"id\":\"e5d5d76d-a748-4f16-94f0-ffed5fecfa00\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"threat_type\",\"label\":\"Threat Type\",\"type\":2,\"isGlobal\":true,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| where TimeGenerated > ago(720d)\\r\\n| project MyJson = parse_json(threats_s)\\r\\n| mvexpand MyJson\\r\\n| summarize by tostring(MyJson)\\r\\n| sort by MyJson asc\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"showDefault\":false},\"defaultValue\":\"value::all\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},{\"id\":\"361f855c-e983-44c9-86b4-4f57286d77e1\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"threat_level\",\"label\":\"Threat Level\",\"type\":2,\"isGlobal\":true,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"showDefault\":false},\"jsonData\":\"[{\\\"label\\\": \\\"Emerging\\\", \\\"value\\\": \\\"emerging\\\"},\\r\\n{\\\"label\\\": \\\"Imminent\\\", \\\"value\\\": \\\"imminent\\\"}]\",\"defaultValue\":\"value::all\"},{\"id\":\"a89b3f31-ac61-419b-94a0-553ccd3ac7ac\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"status\",\"label\":\"Status\",\"type\":2,\"isGlobal\":true,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"showDefault\":false},\"jsonData\":\"[{\\\"label\\\": \\\"Treatment Required\\\", \\\"value\\\": \\\"treatment_required\\\"},\\r\\n{\\\"label\\\": \\\"In Treatment\\\", \\\"value\\\": \\\"in_treatment\\\"},\\r\\n{\\\"label\\\": \\\"Resolved\\\", \\\"value\\\": \\\"resolved\\\"}]\",\"defaultValue\":\"value::all\"}],\"style\":\"above\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"parameters - 1\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\n| extend threats = parse_json(threats_s)\\n| where threats has_any ({threat_type})\\n| where threat_level_s has_any ({threat_level})\\n| where status_name_s has_any ({status})\\n| project [\\\"Alert ID\\\"]=id_s,Title=title_s,[\\\"Threat Type\\\"]=strcat_array(threats, \\\",\\\"), Status=status_name_s, [\\\"Threat Actor\\\"]=threat_actor_s, [\\\"Threat Source\\\"]=threat_source_s, [\\\"Matched Assets\\\"]=assets_s, [\\\"Portal URL\\\"]=portal_url_s, Content=content_s\\n//| where TimeGenerated {date}\",\"size\":2,\"timeContextFromParameter\":\"date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"gridSettings\":{\"formatters\":[{\"columnMatch\":\"Portal URL\",\"formatter\":7,\"formatOptions\":{\"linkTarget\":\"Url\",\"linkLabel\":\"View in Cybersixgill portal\"}},{\"columnMatch\":\"content_s\",\"formatter\":0,\"tooltipFormat\":{\"tooltip\":\"{0}\"}}],\"rowLimit\":50,\"filter\":true}},\"name\":\"cybersixgill-alerts-list\"}],\"fallbackResourceIds\":[\"\"],\"fromTemplateId\":\"sentinel-ActionableAlertsList\",\"$schema\":\"https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json\"}\n",
+                "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"f7f8867d-6fcd-41c3-a908-12de727e6f35\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"date\",\"label\":\"Date\",\"type\":4,\"isGlobal\":true,\"value\":{\"durationMs\":2592000000},\"typeSettings\":{\"selectableValues\":[{\"durationMs\":86400000},{\"durationMs\":604800000},{\"durationMs\":2592000000},{\"durationMs\":5184000000},{\"durationMs\":7776000000}],\"allowCustom\":true},\"timeContext\":{\"durationMs\":86400000}},{\"id\":\"e5d5d76d-a748-4f16-94f0-ffed5fecfa00\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"threat_type\",\"label\":\"Threat Type\",\"type\":2,\"isGlobal\":true,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| where TimeGenerated > ago(720d)\\r\\n| project MyJson = parse_json(threats_s)\\r\\n| mvexpand MyJson\\r\\n| summarize by tostring(MyJson)\\r\\n| sort by MyJson asc\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"showDefault\":false},\"defaultValue\":\"value::all\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},{\"id\":\"361f855c-e983-44c9-86b4-4f57286d77e1\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"threat_level\",\"label\":\"Threat Level\",\"type\":2,\"isGlobal\":true,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"showDefault\":false},\"jsonData\":\"[{\\\"label\\\": \\\"Emerging\\\", \\\"value\\\": \\\"emerging\\\"},\\r\\n{\\\"label\\\": \\\"Imminent\\\", \\\"value\\\": \\\"imminent\\\"}]\",\"defaultValue\":\"value::all\"},{\"id\":\"a89b3f31-ac61-419b-94a0-553ccd3ac7ac\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"status\",\"label\":\"Status\",\"type\":2,\"isGlobal\":true,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"showDefault\":false},\"jsonData\":\"[{\\\"label\\\": \\\"Treatment Required\\\", \\\"value\\\": \\\"treatment_required\\\"},\\r\\n{\\\"label\\\": \\\"In Treatment\\\", \\\"value\\\": \\\"in_treatment\\\"},\\r\\n{\\\"label\\\": \\\"Resolved\\\", \\\"value\\\": \\\"resolved\\\"}]\",\"defaultValue\":\"value::all\"}],\"style\":\"above\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"parameters - 1\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\n| extend threats = parse_json(threats_s)\\n| where threats has_any ({threat_type})\\n| where threat_level_s has_any ({threat_level})\\n| where status_name_s has_any ({status})\\n| project [\\\"Alert ID\\\"]=id_s,Title=title_s,[\\\"Threat Type\\\"]=strcat_array(threats, \\\",\\\"), Status=status_name_s, [\\\"Threat Actor\\\"]=threat_actor_s, [\\\"Threat Source\\\"]=threat_source_s, [\\\"Matched Assets\\\"]=assets_s, [\\\"Portal URL\\\"]=portal_url_s, Content=content_s\\n//| where TimeGenerated {date}\",\"size\":2,\"timeContextFromParameter\":\"date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"gridSettings\":{\"formatters\":[{\"columnMatch\":\"Portal URL\",\"formatter\":7,\"formatOptions\":{\"linkTarget\":\"Url\",\"linkLabel\":\"View in Cybersixgill portal\"}},{\"columnMatch\":\"content_s\",\"formatter\":0,\"tooltipFormat\":{\"tooltip\":\"{0}\"}}],\"rowLimit\":50,\"filter\":true}},\"name\":\"cybersixgill-alerts-list\"}],\"fallbackResourceIds\":[\"\"],\"fromTemplateId\":\"sentinel-ActionableAlertsList\",\"$schema\":\"https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json\"}\r\n",
                 "version": "1.0",
                 "sourceId": "[variables('workspaceResourceId')]",
                 "category": "sentinel"
@@ -193,7 +213,7 @@
         "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
       ],
       "properties": {
-        "description": "ActionableAlertsDashboard Workbook with template version 3.0.1",
+        "description": "ActionableAlertsDashboard Workbook with template version 3.0.2",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('workbookVersion2')]",
@@ -211,7 +231,7 @@
               },
               "properties": {
                 "displayName": "[parameters('workbook2-name')]",
-                "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"228d6050-af03-4f13-8075-8a19c58ce548\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"Date\",\"type\":4,\"isGlobal\":true,\"value\":{\"durationMs\":2592000000},\"typeSettings\":{\"selectableValues\":[{\"durationMs\":86400000},{\"durationMs\":604800000},{\"durationMs\":2592000000},{\"durationMs\":5184000000},{\"durationMs\":7776000000}],\"allowCustom\":true},\"timeContext\":{\"durationMs\":86400000}}],\"style\":\"above\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"parameters - 4\"},{\"type\":12,\"content\":{\"version\":\"NotebookGroup/1.0\",\"groupType\":\"editable\",\"items\":[{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| summarize count() by threat_level_s\\r\\n| order by count_\",\"size\":2,\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"tiles\",\"tileSettings\":{\"showBorder\":false,\"titleContent\":{\"columnMatch\":\"threat_level_s\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"count_\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}}},\"customWidth\":\"50\",\"name\":\"query - 6\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| project MyJson = parse_json(assets_s)\\r\\n| mvexpand MyJson\\r\\n| summarize count() by tostring(MyJson)\\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Top 10 Matched Assets\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"query - 2\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\",\"size\":0,\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"timechart\",\"chartSettings\":{\"showMetrics\":false,\"showDataPoints\":true}},\"name\":\"item-1-timeline\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| where threat_actor_s != \\\"\\\"\\r\\n| summarize count() by threat_actor_s \\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Top 10 threat actors\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"item-2-threat-actors\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| summarize count() by threat_level_s \\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Threat Level\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"item-3-theat-level\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| summarize count() by threat_source_s \\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Top 10 Sources\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"item-4-threat-source\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| project MyJson = parse_json(threats_s)\\r\\n| mvexpand MyJson\\r\\n| summarize count() by tostring(MyJson)\",\"size\":2,\"title\":\"Alerts by Type\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"query - 2\"}]},\"name\":\"group - 5\"}],\"fallbackResourceIds\":[\"\"],\"fromTemplateId\":\"sentinel-ActionableAlertsDashboard\",\"$schema\":\"https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json\"}\n",
+                "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"228d6050-af03-4f13-8075-8a19c58ce548\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"Date\",\"type\":4,\"isGlobal\":true,\"value\":{\"durationMs\":2592000000},\"typeSettings\":{\"selectableValues\":[{\"durationMs\":86400000},{\"durationMs\":604800000},{\"durationMs\":2592000000},{\"durationMs\":5184000000},{\"durationMs\":7776000000}],\"allowCustom\":true},\"timeContext\":{\"durationMs\":86400000}}],\"style\":\"above\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"parameters - 4\"},{\"type\":12,\"content\":{\"version\":\"NotebookGroup/1.0\",\"groupType\":\"editable\",\"items\":[{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| summarize count() by threat_level_s\\r\\n| order by count_\",\"size\":2,\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"tiles\",\"tileSettings\":{\"showBorder\":false,\"titleContent\":{\"columnMatch\":\"threat_level_s\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"count_\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}}},\"customWidth\":\"50\",\"name\":\"query - 6\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| project MyJson = parse_json(assets_s)\\r\\n| mvexpand MyJson\\r\\n| summarize count() by tostring(MyJson)\\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Top 10 Matched Assets\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"query - 2\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\",\"size\":0,\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"timechart\",\"chartSettings\":{\"showMetrics\":false,\"showDataPoints\":true}},\"name\":\"item-1-timeline\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| where threat_actor_s != \\\"\\\"\\r\\n| summarize count() by threat_actor_s \\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Top 10 threat actors\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"item-2-threat-actors\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| summarize count() by threat_level_s \\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Threat Level\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"item-3-theat-level\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| summarize count() by threat_source_s \\r\\n| top 10 by count_\",\"size\":2,\"title\":\"Top 10 Sources\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"item-4-threat-source\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"CyberSixgill_Alerts_CL\\r\\n| project MyJson = parse_json(threats_s)\\r\\n| mvexpand MyJson\\r\\n| summarize count() by tostring(MyJson)\",\"size\":2,\"title\":\"Alerts by Type\",\"timeContextFromParameter\":\"Date\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\",\"visualization\":\"piechart\"},\"customWidth\":\"50\",\"name\":\"query - 2\"}]},\"name\":\"group - 5\"}],\"fallbackResourceIds\":[\"\"],\"fromTemplateId\":\"sentinel-ActionableAlertsDashboard\",\"$schema\":\"https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json\"}\r\n",
                 "version": "1.0",
                 "sourceId": "[variables('workspaceResourceId')]",
                 "category": "sentinel"
@@ -280,7 +300,7 @@
         "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
       ],
       "properties": {
-        "description": "CybersixgillAlertStatusUpdate Playbook with template version 3.0.1",
+        "description": "CybersixgillAlertStatusUpdate Playbook with template version 3.0.2",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('playbookVersion1')]",
@@ -748,7 +768,7 @@
         "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
       ],
       "properties": {
-        "description": "DeleteCybersixgillAlert Playbook with template version 3.0.1",
+        "description": "DeleteCybersixgillAlert Playbook with template version 3.0.2",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('playbookVersion2')]",
@@ -1146,7 +1166,7 @@
         "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
       ],
       "properties": {
-        "description": "Cybersixgill-Actionable-Alerts data connector with template version 3.0.1",
+        "description": "Cybersixgill-Actionable-Alerts data connector with template version 3.0.2",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('dataConnectorVersion1')]",
@@ -1473,13 +1493,862 @@
     {
       "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
       "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnectorDefinition2'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+        "displayName": "Cybersixgill Actionable Alerts (Serverless)",
+        "contentKind": "DataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition2'))]",
+              "apiVersion": "2022-09-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+              "location": "[parameters('workspace-location')]",
+              "kind": "Customizable",
+              "properties": {
+                "connectorUiConfig": {
+                  "id": "CybersixgillActionableAlertsDefinition",
+                  "title": "Cybersixgill Actionable Alerts (Serverless)",
+                  "publisher": "Cybersixgill",
+                  "descriptionMarkdown": "The Cybersixgill Actionable Alerts data connector provides the capability to ingest Cybersixgill threat intelligence alerts into Microsoft Sentinel using the REST API. The connector provides visibility into actionable security alerts from the dark web and other underground sources, enabling security teams to respond to emerging threats.",
+                  "graphQueriesTableName": "CybersixgillActionableAlerts_CL",
+                  "graphQueries": [
+                    {
+                      "metricName": "Total Actionable Alerts",
+                      "legend": "CybersixgillActionableAlerts_CL",
+                      "baseQuery": "CybersixgillActionableAlerts_CL"
+                    }
+                  ],
+                  "sampleQueries": [
+                    {
+                      "description": "All Cybersixgill Actionable Alerts",
+                      "query": "CybersixgillActionableAlerts_CL\n| sort by TimeGenerated desc"
+                    },
+                    {
+                      "description": "High Severity Imminent Threats",
+                      "query": "CybersixgillActionableAlerts_CL\n| where ThreatLevel == 'imminent'\n| sort by TimeGenerated desc"
+                    },
+                    {
+                      "description": "Alerts by Threat Type",
+                      "query": "CybersixgillActionableAlerts_CL\n| mv-expand Threats\n| summarize Count=count() by tostring(Threats)\n| sort by Count desc"
+                    },
+                    {
+                      "description": "CVE-Related Alerts",
+                      "query": "CybersixgillActionableAlerts_CL\n| where isnotempty(CveId)\n| project TimeGenerated, AlertName, CveId, CveDveScore, ThreatLevel\n| sort by TimeGenerated desc"
+                    }
+                  ],
+                  "dataTypes": [
+                    {
+                      "name": "CybersixgillActionableAlerts_CL",
+                      "lastDataReceivedQuery": "CybersixgillActionableAlerts_CL\n| where TimeGenerated > ago(7d)\n| summarize Time=max(TimeGenerated)\n| where isnotempty(Time)"
+                    }
+                  ],
+                  "connectivityCriteria": [
+                    {
+                      "type": "HasDataConnectors"
+                    }
+                  ],
+                  "permissions": {
+                    "resourceProvider": [
+                      {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "Read and Write permissions are required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                          "read": true,
+                          "write": true,
+                          "delete": false
+                        }
+                      },
+                      {
+                        "provider": "Microsoft.OperationalInsights/workspaces/sharedKeys",
+                        "permissionsDisplayText": "Read permissions to shared keys are required.",
+                        "providerDisplayName": "Keys",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                          "action": true
+                        }
+                      }
+                    ],
+                    "customs": [
+                      {
+                        "name": "Cybersixgill API Credentials",
+                        "description": "A Cybersixgill API Client ID and Client Secret are required. [See the documentation to learn more about Cybersixgill API](https://onboarding.cybersixgill.com/documents/CyberSixgill%20API%20User%20Guide.pdf)."
+                      }
+                    ]
+                  },
+                  "instructionSteps": [
+                    {
+                      "title": "1. Get Cybersixgill API Credentials",
+                      "description": "To obtain your Cybersixgill API credentials:\n\n1. Navigate to the [Cybersixgill Developer Portal](https://developer.cybersixgill.com)\n2. Sign in with your Cybersixgill credentials\n3. Click **GENERATE API CLIENT AND SECRET**\n4. Save the Client ID and Client Secret for use in the next step",
+                      "instructions": []
+                    },
+                    {
+                      "title": "2. Configure the Cybersixgill Actionable Alerts connector",
+                      "description": "Enter your Cybersixgill API credentials and optional organization ID below, then click **Connect** to start ingesting actionable alerts into Microsoft Sentinel.",
+                      "instructions": [
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Client ID",
+                            "placeholder": "Enter your Cybersixgill API Client ID",
+                            "type": "text",
+                            "name": "ClientId"
+                          }
+                        },
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Client Secret",
+                            "placeholder": "Enter your Cybersixgill API Client Secret",
+                            "type": "password",
+                            "name": "ClientSecret"
+                          }
+                        },
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "Organization ID (Optional)",
+                            "placeholder": "Enter your Organization ID for multi-tenant deployments",
+                            "type": "text",
+                            "name": "OrganizationId"
+                          }
+                        },
+                        {
+                          "type": "ConnectionToggleButton",
+                          "parameters": {
+                            "connectLabel": "Connect",
+                            "disconnectLabel": "Disconnect",
+                            "name": "connect"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition2')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition2'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+                "kind": "DataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "Cybersixgill"
+                },
+                "support": {
+                  "name": "Cybersixgill",
+                  "email": "info@cybersixgill.com",
+                  "tier": "Partner",
+                  "link": "https://www.cybersixgill.com/"
+                },
+                "dependencies": {
+                  "criteria": [
+                    {
+                      "version": "[variables('dataConnectorCCPVersion')]",
+                      "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+                      "kind": "ResourcesDataConnector"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "CybersixgillActionableAlertsDCR",
+              "apiVersion": "2022-06-01",
+              "type": "Microsoft.Insights/dataCollectionRules",
+              "location": "[parameters('workspace-location')]",
+              "kind": "[variables('blanks')]",
+              "properties": {
+                "streamDeclarations": {
+                  "Custom-CybersixgillActionableAlerts_CL": {
+                    "columns": [
+                      {
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "alert_name",
+                        "type": "string"
+                      },
+                      {
+                        "name": "category",
+                        "type": "string"
+                      },
+                      {
+                        "name": "content_type",
+                        "type": "string"
+                      },
+                      {
+                        "name": "description",
+                        "type": "string"
+                      },
+                      {
+                        "name": "date",
+                        "type": "string"
+                      },
+                      {
+                        "name": "read",
+                        "type": "boolean"
+                      },
+                      {
+                        "name": "site",
+                        "type": "string"
+                      },
+                      {
+                        "name": "status",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "threat_level",
+                        "type": "string"
+                      },
+                      {
+                        "name": "threats",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "title",
+                        "type": "string"
+                      },
+                      {
+                        "name": "user_id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "update_time",
+                        "type": "string"
+                      },
+                      {
+                        "name": "additional_info",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "es_id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "es_item",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "lang",
+                        "type": "string"
+                      },
+                      {
+                        "name": "langcode",
+                        "type": "string"
+                      },
+                      {
+                        "name": "recommendations",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "severity",
+                        "type": "int"
+                      },
+                      {
+                        "name": "assessment",
+                        "type": "string"
+                      },
+                      {
+                        "name": "summary",
+                        "type": "string"
+                      },
+                      {
+                        "name": "matched_assets",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "content",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "destinations": {
+                  "logAnalytics": [
+                    {
+                      "workspaceResourceId": "[variables('workspaceResourceId')]",
+                      "workspaceId": "{{workspaceId}}",
+                      "name": "cybersixgillWorkspace"
+                    }
+                  ]
+                },
+                "dataFlows": [
+                  {
+                    "streams": [
+                      "Custom-CybersixgillActionableAlerts_CL"
+                    ],
+                    "destinations": [
+                      "cybersixgillWorkspace"
+                    ],
+                    "outputStream": "Custom-CybersixgillActionableAlerts_CL",
+                    "transformKql": "source | extend TimeGenerated = now(), AlertId = tostring(id), AlertName = tostring(alert_name), Category = tostring(category), ContentType = tostring(content_type), Description = tostring(description), AlertDate = todatetime(date), ReadStatus = tobool(read), Site = tostring(site), StatusName = tostring(status.name), ThreatLevel = tostring(threat_level), Threats = threats, Title = tostring(title), UserId = tostring(user_id), UpdateTime = todatetime(update_time), AdditionalInfo = additional_info, EsId = tostring(es_id), EsItem = es_item, Lang = tostring(lang), LangCode = tostring(langcode), Recommendations = recommendations, Severity = toint(severity), Assessment = tostring(assessment), Summary = tostring(summary), MatchedAssets = matched_assets, Content = tostring(content), ThreatActor = tostring(columnifexists('threat_actor', '')), ThreatSource = tostring(columnifexists('threat_source', '')), PortalUrl = tostring(columnifexists('portal_url', '')), ActorUrl = tostring(columnifexists('actor_url_with_context', '')), CveId = tostring(columnifexists('cve', '')), CveUrl = tostring(columnifexists('cve_url', '')), CveCvss31Score = todouble(columnifexists('cybersixgillcvss31', -1)), CveCvss20Score = todouble(columnifexists('cybersixgillcvss20', -1)), CveDveScore = todouble(columnifexists('cybersixgilldvescore', -1)), AlertAttributes = tostring(columnifexists('alert_attributes', '')), SubAlertsCount = toint(columnifexists('sub_alerts_count', 0)), OrganizationName = tostring(columnifexists('organization_name', '')) | project TimeGenerated, AlertId, AlertName, Category, ContentType, Description, AlertDate, ReadStatus, Site, StatusName, ThreatLevel, Threats, Title, UserId, UpdateTime, AdditionalInfo, EsId, EsItem, Lang, LangCode, Recommendations, Severity, Assessment, Summary, MatchedAssets, SubAlertsCount, OrganizationName, Content, ThreatActor, ThreatSource, PortalUrl, ActorUrl, CveId, CveUrl, CveCvss31Score, CveCvss20Score, CveDveScore, AlertAttributes"
+                  }
+                ],
+                "dataCollectionEndpointId": "[variables('dataCollectionEndpointId')]"
+              }
+            },
+            {
+              "name": "CybersixgillActionableAlerts_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "CybersixgillActionableAlerts_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "AlertId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "AlertName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Category",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ContentType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Description",
+                      "type": "string"
+                    },
+                    {
+                      "name": "AlertDate",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "ReadStatus",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "Site",
+                      "type": "string"
+                    },
+                    {
+                      "name": "StatusName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ThreatLevel",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Threats",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "Title",
+                      "type": "string"
+                    },
+                    {
+                      "name": "UserId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "UpdateTime",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "AdditionalInfo",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "EsId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "EsItem",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "Lang",
+                      "type": "string"
+                    },
+                    {
+                      "name": "LangCode",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Recommendations",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "Severity",
+                      "type": "int"
+                    },
+                    {
+                      "name": "Assessment",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Summary",
+                      "type": "string"
+                    },
+                    {
+                      "name": "MatchedAssets",
+                      "type": "dynamic"
+                    },
+                    {
+                      "name": "SubAlertsCount",
+                      "type": "int"
+                    },
+                    {
+                      "name": "OrganizationName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Content",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ThreatActor",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ThreatSource",
+                      "type": "string"
+                    },
+                    {
+                      "name": "PortalUrl",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ActorUrl",
+                      "type": "string"
+                    },
+                    {
+                      "name": "CveId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "CveUrl",
+                      "type": "string"
+                    },
+                    {
+                      "name": "CveCvss31Score",
+                      "type": "real"
+                    },
+                    {
+                      "name": "CveCvss20Score",
+                      "type": "real"
+                    },
+                    {
+                      "name": "CveDveScore",
+                      "type": "real"
+                    },
+                    {
+                      "name": "AlertAttributes",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentIdConnectorDefinition2'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition2'))]",
+      "apiVersion": "2022-09-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+      "location": "[parameters('workspace-location')]",
+      "kind": "Customizable",
+      "properties": {
+        "connectorUiConfig": {
+          "id": "CybersixgillActionableAlertsDefinition",
+          "title": "Cybersixgill Actionable Alerts (Serverless)",
+          "publisher": "Cybersixgill",
+          "descriptionMarkdown": "The Cybersixgill Actionable Alerts data connector provides the capability to ingest Cybersixgill threat intelligence alerts into Microsoft Sentinel using the REST API. The connector provides visibility into actionable security alerts from the dark web and other underground sources, enabling security teams to respond to emerging threats.",
+          "graphQueriesTableName": "CybersixgillActionableAlerts_CL",
+          "graphQueries": [
+            {
+              "metricName": "Total Actionable Alerts",
+              "legend": "CybersixgillActionableAlerts_CL",
+              "baseQuery": "CybersixgillActionableAlerts_CL"
+            }
+          ],
+          "sampleQueries": [
+            {
+              "description": "All Cybersixgill Actionable Alerts",
+              "query": "CybersixgillActionableAlerts_CL\n| sort by TimeGenerated desc"
+            },
+            {
+              "description": "High Severity Imminent Threats",
+              "query": "CybersixgillActionableAlerts_CL\n| where ThreatLevel == 'imminent'\n| sort by TimeGenerated desc"
+            },
+            {
+              "description": "Alerts by Threat Type",
+              "query": "CybersixgillActionableAlerts_CL\n| mv-expand Threats\n| summarize Count=count() by tostring(Threats)\n| sort by Count desc"
+            },
+            {
+              "description": "CVE-Related Alerts",
+              "query": "CybersixgillActionableAlerts_CL\n| where isnotempty(CveId)\n| project TimeGenerated, AlertName, CveId, CveDveScore, ThreatLevel\n| sort by TimeGenerated desc"
+            }
+          ],
+          "dataTypes": [
+            {
+              "name": "CybersixgillActionableAlerts_CL",
+              "lastDataReceivedQuery": "CybersixgillActionableAlerts_CL\n| where TimeGenerated > ago(7d)\n| summarize Time=max(TimeGenerated)\n| where isnotempty(Time)"
+            }
+          ],
+          "connectivityCriteria": [
+            {
+              "type": "HasDataConnectors"
+            }
+          ],
+          "permissions": {
+            "resourceProvider": [
+              {
+                "provider": "Microsoft.OperationalInsights/workspaces",
+                "permissionsDisplayText": "Read and Write permissions are required.",
+                "providerDisplayName": "Workspace",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                  "read": true,
+                  "write": true,
+                  "delete": false
+                }
+              },
+              {
+                "provider": "Microsoft.OperationalInsights/workspaces/sharedKeys",
+                "permissionsDisplayText": "Read permissions to shared keys are required.",
+                "providerDisplayName": "Keys",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                  "action": true
+                }
+              }
+            ],
+            "customs": [
+              {
+                "name": "Cybersixgill API Credentials",
+                "description": "A Cybersixgill API Client ID and Client Secret are required. [See the documentation to learn more about Cybersixgill API](https://onboarding.cybersixgill.com/documents/CyberSixgill%20API%20User%20Guide.pdf)."
+              }
+            ]
+          },
+          "instructionSteps": [
+            {
+              "title": "1. Get Cybersixgill API Credentials",
+              "description": "To obtain your Cybersixgill API credentials:\n\n1. Navigate to the [Cybersixgill Developer Portal](https://developer.cybersixgill.com)\n2. Sign in with your Cybersixgill credentials\n3. Click **GENERATE API CLIENT AND SECRET**\n4. Save the Client ID and Client Secret for use in the next step",
+              "instructions": []
+            },
+            {
+              "title": "2. Configure the Cybersixgill Actionable Alerts connector",
+              "description": "Enter your Cybersixgill API credentials and optional organization ID below, then click **Connect** to start ingesting actionable alerts into Microsoft Sentinel.",
+              "instructions": [
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Client ID",
+                    "placeholder": "Enter your Cybersixgill API Client ID",
+                    "type": "text",
+                    "name": "ClientId"
+                  }
+                },
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Client Secret",
+                    "placeholder": "Enter your Cybersixgill API Client Secret",
+                    "type": "password",
+                    "name": "ClientSecret"
+                  }
+                },
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "Organization ID (Optional)",
+                    "placeholder": "Enter your Organization ID for multi-tenant deployments",
+                    "type": "text",
+                    "name": "OrganizationId"
+                  }
+                },
+                {
+                  "type": "ConnectionToggleButton",
+                  "parameters": {
+                    "connectLabel": "Connect",
+                    "disconnectLabel": "Disconnect",
+                    "name": "connect"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition2')))]",
+      "apiVersion": "2022-01-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+      "properties": {
+        "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition2'))]",
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+        "kind": "DataConnector",
+        "version": "[variables('dataConnectorCCPVersion')]",
+        "source": {
+          "sourceId": "[variables('_solutionId')]",
+          "name": "[variables('_solutionName')]",
+          "kind": "Solution"
+        },
+        "author": {
+          "name": "Cybersixgill"
+        },
+        "support": {
+          "name": "Cybersixgill",
+          "email": "info@cybersixgill.com",
+          "tier": "Partner",
+          "link": "https://www.cybersixgill.com/"
+        },
+        "dependencies": {
+          "criteria": [
+            {
+              "version": "[variables('dataConnectorCCPVersion')]",
+              "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+              "kind": "ResourcesDataConnector"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnections2'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+        "displayName": "Cybersixgill Actionable Alerts (Serverless)",
+        "contentKind": "ResourcesDataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {
+            "guidValue": {
+              "defaultValue": "[[newGuid()]",
+              "type": "securestring"
+            },
+            "innerWorkspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "connectorDefinitionName": {
+              "defaultValue": "Cybersixgill Actionable Alerts (Serverless)",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "workspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "dcrConfig": {
+              "defaultValue": {
+                "dataCollectionEndpoint": "data collection Endpoint",
+                "dataCollectionRuleImmutableId": "data collection rule immutableId"
+              },
+              "type": "object"
+            },
+            "ClientId": {
+              "defaultValue": "ClientId",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "ClientSecret": {
+              "defaultValue": "ClientSecret",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "OrganizationId": {
+              "defaultValue": "OrganizationId",
+              "type": "securestring",
+              "minLength": 1
+            }
+          },
+          "variables": {
+            "_dataConnectorContentIdConnections2": "[variables('_dataConnectorContentIdConnections2')]"
+          },
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnections2')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectors', variables('_dataConnectorContentIdConnections2'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+                "kind": "ResourcesDataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "Cybersixgill"
+                },
+                "support": {
+                  "name": "Cybersixgill",
+                  "email": "info@cybersixgill.com",
+                  "tier": "Partner",
+                  "link": "https://www.cybersixgill.com/"
+                }
+              }
+            },
+            {
+              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'CybersixgillActionableAlertsPoller', parameters('guidValue'))]",
+              "apiVersion": "2023-02-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "RestApiPoller",
+              "properties": {
+                "connectorDefinitionName": "CybersixgillActionableAlertsDefinition",
+                "dataType": "CybersixgillActionableAlerts_CL",
+                "dcrConfig": {
+                  "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
+                  "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]",
+                  "streamName": "Custom-CybersixgillActionableAlerts_CL"
+                },
+                "auth": {
+                  "type": "OAuth2",
+                  "GrantType": "client_credentials",
+                  "ClientId": "[[parameters('ClientId')]",
+                  "ClientSecret": "[[parameters('ClientSecret')]",
+                  "TokenEndpoint": "https://api.cybersixgill.com/auth/token",
+                  "TokenEndpointHeaders": {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                  },
+                  "TokenEndpointQueryParameters": {}
+                },
+                "request": {
+                  "apiEndpoint": "https://api.cybersixgill.com/alerts/actionable-alert",
+                  "httpMethod": "GET",
+                  "queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+                  "startTimeAttributeName": "from_date",
+                  "endTimeAttributeName": "to_date",
+                  "queryParameters": {
+                    "fetch_size": "5",
+                    "offset": "0",
+                    "sort_order": "asc",
+                    "organization_id": "[[parameters('OrganizationId')]"
+                  },
+                  "queryWindowInMin": 1440,
+                  "rateLimitQPS": 1,
+                  "retryCount": 3,
+                  "timeoutInSeconds": 60,
+                  "headers": {
+                    "X-Channel-Id": "cea9a52effad4bc5e905a5a653f5cf9b"
+                  }
+                },
+                "paging": {
+                  "pagingType": "Offset",
+                  "offsetParaName": "offset",
+                  "pageSizeParaName": "fetch_size",
+                  "pageSize": 5
+                },
+                "response": {
+                  "eventsJsonPaths": [
+                    "$"
+                  ],
+                  "format": "json"
+                },
+                "stepInfo": {
+                  "stepType": "Nested",
+                  "nextSteps": [
+                    {
+                      "stepId": "fetchAlertDetails",
+                      "stepPlaceholdersParsingKql": "source | project id=tostring(id)"
+                    }
+                  ]
+                },
+                "stepCollectorConfigs": {
+                  "fetchAlertDetails": {
+                    "shouldJoinNestedData": true,
+                    "joinedDataStepName": "AlertDetails",
+                    "request": {
+                      "apiEndpoint": "https://api.cybersixgill.com/alerts/actionable_alert/$id$",
+                      "httpMethod": "GET",
+                      "headers": {
+                        "X-Channel-Id": "cea9a52effad4bc5e905a5a653f5cf9b"
+                      },
+                      "queryParameters": {
+                        "organization_id": "{{OrganizationId}}"
+                      },
+                      "rateLimitQPS": 1,
+                      "retryCount": 3,
+                      "timeoutInSeconds": 60
+                    },
+                    "response": {
+                      "eventsJsonPaths": [
+                        "$"
+                      ],
+                      "format": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','rdc','-', uniqueString(concat(variables('_solutionId'),'-','ResourcesDataConnector','-',variables('_dataConnectorContentIdConnections2'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
       "name": "[variables('huntingQueryObject1').huntingQueryTemplateSpecName1]",
       "location": "[parameters('workspace-location')]",
       "dependsOn": [
         "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
       ],
       "properties": {
-        "description": "ActionableAlerts_HuntingQueries Hunting Query with template version 3.0.1",
+        "description": "ActionableAlerts_HuntingQueries Hunting Query with template version 3.0.2",
         "mainTemplate": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "[variables('huntingQueryObject1').huntingQueryVersion1]",
@@ -1551,12 +2420,12 @@
       "apiVersion": "2023-04-01-preview",
       "location": "[parameters('workspace-location')]",
       "properties": {
-        "version": "3.0.1",
+        "version": "3.0.2",
         "kind": "Solution",
         "contentSchemaVersion": "3.0.0",
         "displayName": "Cybersixgill-Actionable-Alerts",
         "publisherDisplayName": "Cybersixgill",
-        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/Cybersixgill-Actionable-Alerts/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>Cybersixgill Actionable Alerts provides a premium automated customized threat intelligence feed from the deep and dark web. Monitor activity in the underground regarding your key assets (Names, IP Address, Domains, CVEs, Third party suppliers ) relevant to their brand, industry, and geolocation and receive real time alert notifications on incoming threats on your organization including: Contextual data, assessments and recommendations</p>\n<p><strong>Data Connectors:</strong> 1, <strong>Workbooks:</strong> 2, <strong>Hunting Queries:</strong> 1, <strong>Playbooks:</strong> 2</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
+        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/Cybersixgill-Actionable-Alerts/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>Cybersixgill Actionable Alerts provides a premium automated customized threat intelligence feed from the deep and dark web. Monitor activity in the underground regarding your key assets (Names, IP Address, Domains, CVEs, Third party suppliers ) relevant to their brand, industry, and geolocation and receive real time alert notifications on incoming threats on your organization including: Contextual data, assessments and recommendations</p>\n<p><strong>Data Connectors:</strong> 2, <strong>Workbooks:</strong> 2, <strong>Hunting Queries:</strong> 1, <strong>Playbooks:</strong> 2</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
         "contentKind": "Solution",
         "contentProductId": "[variables('_solutioncontentProductId')]",
         "id": "[variables('_solutioncontentProductId')]",
@@ -1604,6 +2473,11 @@
               "kind": "DataConnector",
               "contentId": "[variables('_dataConnectorContentId1')]",
               "version": "[variables('dataConnectorVersion1')]"
+            },
+            {
+              "kind": "DataConnector",
+              "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+              "version": "[variables('dataConnectorCCPVersion')]"
             },
             {
               "kind": "HuntingQuery",
