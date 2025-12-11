@@ -61,7 +61,7 @@
         "nextSteps": [
           {
             "stepId": "fetchAlertDetails",
-            "stepPlaceholdersParsingKql": "source | project id=tostring(id)"
+            "stepPlaceholdersParsingKql": "source | project res = parse_json(data) | project id=res.id"
           }
         ]
       },
@@ -74,9 +74,6 @@
             "httpMethod": "GET",
             "headers": {
               "X-Channel-Id": "cea9a52effad4bc5e905a5a653f5cf9b"
-            },
-            "queryParameters": {
-              "organization_id": "{{OrganizationId}}"
             },
             "rateLimitQPS": 1,
             "retryCount": 3,
