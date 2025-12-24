@@ -1803,7 +1803,7 @@
                       "cybersixgillWorkspace"
                     ],
                     "outputStream": "Custom-CybersixgillActionableAlerts_CL",
-                    "transformKql": "source | project TimeGenerated = now(), AlertId = id, AlertName = alert_name, Category = category, ContentType = content_type, Description = description, AlertDate = todatetime(['date']), ReadStatus = read, Site = site, ThreatLevel = threat_level, Threats = threats, Title = title, UserId = user_id, UpdateTime = todatetime(update_time), AdditionalInfo = additional_info, EsId = es_id, EsItem = es_item, Lang = lang, LangCode = langcode, Recommendations = recommendations, Severity = severity, Assessment = assessment, Summary = summary, MatchedAssets = matched_assets, Content = content"
+                    "transformKql": "source | project TimeGenerated = now(), AlertId = id, AlertName = alert_name, Category = category, ContentType = content_type, Description = description, AlertDate = todatetime(['date']), ReadStatus = read, Site = site, ThreatLevel = threat_level, Threats = threats, Title = ['title'], UserId = user_id, UpdateTime = todatetime(update_time), AdditionalInfo = additional_info, EsId = es_id, EsItem = es_item, Lang = lang, LangCode = langcode, Recommendations = recommendations, Severity = severity, Assessment = assessment, Summary = summary, MatchedAssets = matched_assets, Content = content"
                   }
                 ],
                 "dataCollectionEndpointId": "[variables('dataCollectionEndpointId')]"
