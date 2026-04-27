@@ -2458,7 +2458,11 @@
                     "IsJsonRequest": true,
                     "JwtTokenJsonPath": "$.token",
                     "TokenEndpoint": "[[concat(parameters('managementUrl'),'/auth/token')]",
-                    "ApiKeyName": "Authorization"
+                    "ApiKeyName": "Authorization",
+                    "Headers": {
+                        "Accept": "application/json",
+                        "User-Agent": "sentinel-one-auth/1.0.0"
+                    }
                 },
                 "request": {
                   "apiEndpoint": "[[concat(parameters('managementUrl'), '/web/api/','v2.1', '/', 'activities')]",
